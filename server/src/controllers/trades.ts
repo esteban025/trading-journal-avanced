@@ -163,16 +163,26 @@ export async function createTrade(req: Request, res: Response): Promise<void> {
 
 export async function updateTrade(req: Request, res: Response): Promise<void> {
   const { id } = req.params;
-  const [existing] = await db.query<RowDataPacket[]>('SELECT id FROM trades WHERE id = ?', [id]);
-  if (!existing.length) {
+  const [existingRows] = await db.query<RowDataPacket[]>(
+    `SELECT t.*, a.pip_value FROM trades t JOIN assets a ON t.asset_id = a.id WHERE t.id = ?`,
+    [id]
+  );
+  if (!(existingRows as RowDataPacket[]).length) {
     res.status(404).json({ error: 'Trade not found' });
     return;
   }
 
+  const existing = (existingRows as RowDataPacket[])[0];
   const body = req.body as Record<string, unknown>;
-  const allowed = ['account_id', 'asset_id', 'strategy_id', 'direction',
-    'entry_date', 'entry_price', 'position_size', 'stop_loss',
-    'take_profit', 'comment'];
+
+  const allowed = [
+    'account_id', 'asset_id', 'strategy_id', 'direction',
+    'entry_date', 'exit_date',
+    'entry_price', 'exit_price',
+    'position_size', 'stop_loss', 'take_profit',
+    'swap', 'commission', 'rollover',
+    'comment',
+  ];
   const updates: string[] = [];
   const params: unknown[] = [];
 
@@ -188,9 +198,55 @@ export async function updateTrade(req: Request, res: Response): Promise<void> {
     return;
   }
 
-  params.push(id);
+  // Calcular valores finales para determinar PnL
+  const mergedDirection = String(body.direction ?? existing['direction']);
+  const mergedEntryPrice = Number(body.entry_price ?? existing['entry_price']);
+  const mergedExitPrice = 'exit_price' in body
+    ? (body.exit_price != null ? Number(body.exit_price) : null)
+    : (existing['exit_price'] != null ? Number(existing['exit_price']) : null);
+  const mergedExitDate = 'exit_date' in body ? body.exit_date : existing['exit_date'];
+  const mergedPositionSize = Number(body.position_size ?? existing['position_size']);
+  const mergedSwap = Number(body.swap ?? existing['swap'] ?? 0);
+  const mergedCommission = Number(body.commission ?? existing['commission'] ?? 0);
+  const mergedRollover = Number(body.rollover ?? existing['rollover'] ?? 0);
+
+  // Si cambia el activo, obtener el nuevo pip_value
+  let pipValue = Number(existing['pip_value']) || 1;
+  if (body.asset_id && Number(body.asset_id) !== Number(existing['asset_id'])) {
+    const [[newAsset]] = await db.query<RowDataPacket[]>(
+      'SELECT pip_value FROM assets WHERE id = ?', [body.asset_id]
+    ) as [RowDataPacket[], unknown];
+    if (newAsset) pipValue = Number(newAsset['pip_value']) || 1;
+  }
+
+  let gross_pnl: number | null = null;
+  let pnl_val: number | null = null;
+  let status = 'open';
+
+  if (mergedExitPrice !== null && mergedExitDate) {
+    const priceDiff = mergedDirection === 'long'
+      ? mergedExitPrice - mergedEntryPrice
+      : mergedEntryPrice - mergedExitPrice;
+    gross_pnl = priceDiff * (mergedPositionSize * 100) * pipValue;
+    pnl_val = gross_pnl - mergedSwap - mergedCommission - mergedRollover;
+    status = 'closed';
+  }
+
+  updates.push('gross_pnl = ?', 'pnl = ?', 'status = ?');
+  params.push(gross_pnl, pnl_val, status, id);
+
   await db.query(`UPDATE trades SET ${updates.join(', ')} WHERE id = ?`, params);
-  const [rows] = await db.query<RowDataPacket[]>('SELECT * FROM trades WHERE id = ?', [id]);
+
+  const [rows] = await db.query<RowDataPacket[]>(
+    `SELECT t.*, a.symbol AS asset_symbol, a.name AS asset_name, a.pip_value,
+            s.name AS strategy_name, ac.name AS account_name
+     FROM trades t
+     JOIN assets a    ON t.asset_id   = a.id
+     JOIN accounts ac ON t.account_id = ac.id
+     LEFT JOIN strategies s ON t.strategy_id = s.id
+     WHERE t.id = ?`,
+    [id]
+  );
   res.json(rows[0]);
 }
 

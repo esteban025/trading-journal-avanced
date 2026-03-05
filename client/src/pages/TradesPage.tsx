@@ -112,6 +112,7 @@ export function TradesPage() {
 
   // Modales
   const [showNewTrade, setShowNewTrade] = useState(false);
+  const [editTarget, setEditTarget] = useState<Trade | null>(null);
   const [closeTarget, setCloseTarget] = useState<Trade | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Trade | null>(null);
   useEffect(() => {
@@ -426,19 +427,27 @@ export function TradesPage() {
                       </td>
                       <td className="px-3 py-2.5 text-secondary text-xs">{trade.strategy_name ?? <span className="text-dimmed">—</span>}</td>
                       <td className="px-3 py-2.5 text-right">
-                        <div className="flex items-center justify-end gap-1.5">                          <Link
-                          to={`/trades/${trade.id}`}
-                          className="text-xs text-secondary hover:text-primary bg-elevated border border-muted rounded-md px-2 py-0.5 transition-colors"
-                        >
-                          Ver
-                        </Link>                          {trade.status === 'open' && (
-                          <button
-                            onClick={() => setCloseTarget(trade)}
-                            className="text-xs text-brand hover:opacity-80 bg-brand-subtle border border-brand/20 rounded-md px-2 py-0.5 transition-opacity whitespace-nowrap"
+                        <div className="flex items-center justify-end gap-1.5">
+                          <Link
+                            to={`/trades/${trade.id}`}
+                            className="text-xs text-secondary hover:text-primary bg-elevated border border-muted rounded-md px-2 py-0.5 transition-colors"
                           >
-                            Cerrar
+                            Ver
+                          </Link>
+                          <button
+                            onClick={() => setEditTarget(trade)}
+                            className="text-xs text-secondary hover:text-primary bg-elevated border border-muted rounded-md px-2 py-0.5 transition-colors"
+                          >
+                            Editar
                           </button>
-                        )}
+                          {trade.status === 'open' && (
+                            <button
+                              onClick={() => setCloseTarget(trade)}
+                              className="text-xs text-brand hover:opacity-80 bg-brand-subtle border border-brand/20 rounded-md px-2 py-0.5 transition-opacity whitespace-nowrap"
+                            >
+                              Cerrar
+                            </button>
+                          )}
                           <button
                             onClick={() => setDeleteTarget(trade)}
                             className="text-xs text-danger hover:opacity-80 bg-loss-bg border border-loss/20 rounded-md px-2 py-0.5 transition-opacity"
@@ -496,6 +505,20 @@ export function TradesPage() {
         <NewTradeModal
           onClose={() => setShowNewTrade(false)}
           onCreated={() => { setShowNewTrade(false); fetchTrades(filters); toast('Trade creado correctamente'); }}
+        />
+      )}
+
+      {/* Modal editar trade */}
+      {editTarget && (
+        <NewTradeModal
+          trade={editTarget}
+          onClose={() => setEditTarget(null)}
+          onCreated={() => {}}
+          onUpdated={(updated) => {
+            setEditTarget(null);
+            setTrades((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
+            toast('Trade actualizado correctamente');
+          }}
         />
       )}
 

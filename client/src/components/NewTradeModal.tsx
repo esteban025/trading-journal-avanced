@@ -9,6 +9,8 @@ import { useAppContext } from '../context/AppContext';
 interface NewTradeModalProps {
   onClose: () => void;
   onCreated: (trade: Trade) => void;
+  onUpdated?: (trade: Trade) => void;
+  trade?: Trade; // si se pasa = modo edición
 }
 
 interface FormData {
@@ -34,8 +36,14 @@ function toLocalDatetimeValue(date: Date): string {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
-export function NewTradeModal({ onClose, onCreated }: NewTradeModalProps) {
+function dbDateToLocalInput(dateStr: string | null | undefined): string {
+  if (!dateStr) return '';
+  return toLocalDatetimeValue(new Date(dateStr));
+}
+
+export function NewTradeModal({ onClose, onCreated, onUpdated, trade }: NewTradeModalProps) {
   const { state } = useAppContext();
+  const isEdit = trade != null;
 
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [assets, setAssets] = useState<Asset[]>([]);
@@ -43,22 +51,43 @@ export function NewTradeModal({ onClose, onCreated }: NewTradeModalProps) {
   const [loadingData, setLoadingData] = useState(true);
   const [loadError, setLoadError] = useState('');
 
-  const [form, setForm] = useState<FormData>({
-    account_id: state.activeAccountId ? String(state.activeAccountId) : '',
-    asset_id: '',
-    strategy_id: '',
-    direction: 'long',
-    entry_date: toLocalDatetimeValue(new Date()),
-    exit_date: '',
-    entry_price: '',
-    exit_price: '',
-    position_size: '',
-    stop_loss: '',
-    take_profit: '',
-    swap: '',
-    commission: '',
-    rollover: '',
-    comment: '',
+  const [form, setForm] = useState<FormData>(() => {
+    if (trade) {
+      return {
+        account_id: String(trade.account_id),
+        asset_id: String(trade.asset_id),
+        strategy_id: trade.strategy_id ? String(trade.strategy_id) : '',
+        direction: trade.direction,
+        entry_date: dbDateToLocalInput(trade.entry_date),
+        exit_date: dbDateToLocalInput(trade.exit_date),
+        entry_price: String(trade.entry_price),
+        exit_price: trade.exit_price != null ? String(trade.exit_price) : '',
+        position_size: String(trade.position_size),
+        stop_loss: trade.stop_loss != null ? String(trade.stop_loss) : '',
+        take_profit: trade.take_profit != null ? String(trade.take_profit) : '',
+        swap: String(trade.swap),
+        commission: String(trade.commission),
+        rollover: String(trade.rollover),
+        comment: trade.comment ?? '',
+      };
+    }
+    return {
+      account_id: state.activeAccountId ? String(state.activeAccountId) : '',
+      asset_id: '',
+      strategy_id: '',
+      direction: 'long',
+      entry_date: toLocalDatetimeValue(new Date()),
+      exit_date: '',
+      entry_price: '',
+      exit_price: '',
+      position_size: '',
+      stop_loss: '',
+      take_profit: '',
+      swap: '',
+      commission: '',
+      rollover: '',
+      comment: '',
+    };
   });
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -141,28 +170,35 @@ export function NewTradeModal({ onClose, onCreated }: NewTradeModalProps) {
 
     const toDbDate = (local: string) => new Date(local).toISOString().slice(0, 19).replace('T', ' ');
 
+    const payload = {
+      account_id: Number(form.account_id),
+      asset_id: Number(form.asset_id),
+      strategy_id: form.strategy_id ? Number(form.strategy_id) : null,
+      direction: form.direction,
+      entry_date: toDbDate(form.entry_date),
+      exit_date: hasExitDate ? toDbDate(form.exit_date) : null,
+      entry_price,
+      exit_price: exit_price ?? null,
+      position_size,
+      stop_loss: stop_loss ?? null,
+      take_profit: take_profit ?? null,
+      swap: form.swap.trim() !== '' ? parseFloat(form.swap) : 0,
+      commission: form.commission.trim() !== '' ? parseFloat(form.commission) : 0,
+      rollover: form.rollover.trim() !== '' ? parseFloat(form.rollover) : 0,
+      comment: form.comment.trim() || null,
+    };
+
     setSubmitting(true);
     try {
-      const created = await tradesService.create({
-        account_id: Number(form.account_id),
-        asset_id: Number(form.asset_id),
-        strategy_id: form.strategy_id ? Number(form.strategy_id) : null,
-        direction: form.direction,
-        entry_date: toDbDate(form.entry_date),
-        exit_date: hasExitDate ? toDbDate(form.exit_date) : null,
-        entry_price,
-        exit_price: exit_price ?? null,
-        position_size,
-        stop_loss: stop_loss ?? null,
-        take_profit: take_profit ?? null,
-        swap: form.swap.trim() !== '' ? parseFloat(form.swap) : 0,
-        commission: form.commission.trim() !== '' ? parseFloat(form.commission) : 0,
-        rollover: form.rollover.trim() !== '' ? parseFloat(form.rollover) : 0,
-        comment: form.comment.trim() || null,
-      });
-      onCreated(created);
+      if (isEdit && trade) {
+        const updated = await tradesService.update(trade.id, payload);
+        onUpdated?.(updated);
+      } else {
+        const created = await tradesService.create(payload);
+        onCreated(created);
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al registrar el trade');
+      setError(err instanceof Error ? err.message : isEdit ? 'Error al actualizar el trade' : 'Error al registrar el trade');
     } finally {
       setSubmitting(false);
     }
@@ -181,7 +217,7 @@ export function NewTradeModal({ onClose, onCreated }: NewTradeModalProps) {
       <div className="bg-surface border border-subtle rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-subtle sticky top-0 bg-surface z-10">
-          <h2 className="text-primary font-semibold text-lg">Nuevo trade</h2>
+          <h2 className="text-primary font-semibold text-lg">{isEdit ? 'Editar trade' : 'Nuevo trade'}</h2>
           <button onClick={onClose} className="text-tertiary hover:text-primary transition-colors">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -343,7 +379,7 @@ export function NewTradeModal({ onClose, onCreated }: NewTradeModalProps) {
                   value={form.swap}
                   onChange={handleChange}
                   placeholder="0.00"
-                  step="any"
+                  step="0.01"
                   className={inputCls}
                 />
               </div>
@@ -437,7 +473,7 @@ export function NewTradeModal({ onClose, onCreated }: NewTradeModalProps) {
                 disabled={submitting}
                 className="flex-1 px-4 py-2 text-sm font-medium text-base bg-brand-strong hover:bg-brand rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {submitting ? 'Registrando...' : 'Registrar trade'}
+                {submitting ? (isEdit ? 'Guardando...' : 'Registrando...') : (isEdit ? 'Guardar cambios' : 'Registrar trade')}
               </button>
             </div>
           </form>

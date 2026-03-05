@@ -139,19 +139,19 @@
 
 ## Fase 11: Frontend — Gestión de Activos
 
-- [ ] Crear página `AssetsPage.tsx` con tabla de activos
-- [ ] Mostrar columnas: símbolo, nombre, tipo, pip_value
-- [ ] Crear modal/formulario `AssetForm.tsx` para crear y editar activos
-- [ ] Selector de tipo con los valores del ENUM (`forex`, `index`, `stocks`, etc.)
-- [ ] Implementar botón de eliminar con confirmación
+- [✔] Crear página `AssetsPage.tsx` con tabla de activos
+- [✔] Mostrar columnas: símbolo, nombre, tipo, pip_value
+- [✔] Crear modal/formulario `AssetForm.tsx` para crear y editar activos
+- [✔] Selector de tipo con los valores del ENUM (`forex`, `index`, `stocks`, etc.)
+- [✔] Implementar botón de eliminar con confirmación
 
 ---
 
 ## Fase 12: Frontend — Gestión de Estrategias
 
-- [ ] Crear página `StrategiesPage.tsx` con tabla de estrategias
-- [ ] Crear modal/formulario `StrategyForm.tsx` para crear y editar estrategias
-- [ ] Implementar botón de eliminar con confirmación
+- [✔] Crear página `StrategiesPage.tsx` con tabla de estrategias
+- [✔] Crear modal/formulario `StrategyForm.tsx` para crear y editar estrategias
+- [✔] Implementar botón de eliminar con confirmación
 
 ---
 

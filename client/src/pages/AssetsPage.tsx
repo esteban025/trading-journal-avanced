@@ -1,8 +1,274 @@
-export function AssetsPage() {
+import { useEffect, useState } from 'react';
+import type { Asset, AssetType } from '../types';
+import { assetsService } from '../services/assetsService';
+import { AssetForm } from '../components/AssetForm';
+
+// ── Helpers ─────────────────────────────────────────────────────────────────
+
+const TYPE_LABELS: Record<AssetType, string> = {
+  forex: 'Forex',
+  index: 'Índice',
+  stocks: 'Acciones',
+  futures: 'Futuros',
+  crypto: 'Crypto',
+  commodities: 'Commodities',
+};
+
+const TYPE_COLORS: Record<AssetType, string> = {
+  forex: 'text-brand bg-brand-subtle border-brand/20',
+  index: 'text-neutral bg-neutral-bg border-neutral/20',
+  stocks: 'text-profit bg-profit-bg border-profit/20',
+  futures: 'text-secondary bg-elevated border-muted',
+  crypto: 'text-loss bg-loss-bg border-loss/20',
+  commodities: 'text-dimmed bg-base border-subtle',
+};
+
+// ── ConfirmDialog ────────────────────────────────────────────────────────────
+
+interface ConfirmDialogProps {
+  assetName: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+}
+
+function ConfirmDialog({ assetName, onConfirm, onCancel }: ConfirmDialogProps) {
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') onCancel();
+    }
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onCancel]);
+
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold text-primary mb-1">Activos</h1>
-      <p className="text-secondary text-sm">Catálogo de activos operados</p>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+      onClick={(e) => { if (e.target === e.currentTarget) onCancel(); }}
+    >
+      <div className="bg-surface border border-subtle rounded-xl shadow-2xl w-full max-w-sm mx-4 p-6">
+        <h3 className="text-primary font-semibold text-base mb-2">Eliminar activo</h3>
+        <p className="text-secondary text-sm mb-5">
+          ¿Estás seguro de que deseas eliminar <span className="text-primary font-medium">{assetName}</span>?
+          Esta acción no se puede deshacer.
+        </p>
+        <div className="flex gap-3">
+          <button
+            onClick={onCancel}
+            className="flex-1 px-4 py-2 text-sm font-medium text-secondary bg-elevated border border-muted rounded-lg hover:text-primary transition-colors"
+          >
+            Cancelar
+          </button>
+          <button
+            onClick={onConfirm}
+            className="flex-1 px-4 py-2 text-sm font-medium text-base bg-danger-strong hover:opacity-90 rounded-lg transition-opacity"
+          >
+            Eliminar
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── EmptyState ───────────────────────────────────────────────────────────────
+
+function EmptyState({ onNew }: { onNew: () => void }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-20 text-center">
+      <div className="w-14 h-14 rounded-full bg-elevated flex items-center justify-center mb-4">
+        <svg className="w-7 h-7 text-tertiary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+        </svg>
+      </div>
+      <p className="text-primary font-medium mb-1">Sin activos registrados</p>
+      <p className="text-secondary text-sm mb-5">Agrega los instrumentos que operarás</p>
+      <button
+        onClick={onNew}
+        className="px-4 py-2 text-sm font-medium text-base bg-brand-strong hover:bg-brand rounded-lg transition-colors"
+      >
+        + Nuevo activo
+      </button>
+    </div>
+  );
+}
+
+// ── AssetsPage ───────────────────────────────────────────────────────────────
+
+export function AssetsPage() {
+  const [assets, setAssets] = useState<Asset[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [showForm, setShowForm] = useState(false);
+  const [editAsset, setEditAsset] = useState<Asset | undefined>(undefined);
+  const [deleteTarget, setDeleteTarget] = useState<Asset | null>(null);
+  const [deleteError, setDeleteError] = useState('');
+
+  async function loadAssets() {
+    try {
+      const data = await assetsService.list();
+      setAssets(data);
+    } catch {
+      setError('No se pudieron cargar los activos');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => { loadAssets(); }, []);
+
+  function handleSaved(saved: Asset) {
+    setAssets((prev) => {
+      const idx = prev.findIndex((a) => a.id === saved.id);
+      if (idx !== -1) {
+        const next = [...prev];
+        next[idx] = saved;
+        return next;
+      }
+      return [...prev, saved];
+    });
+    setShowForm(false);
+    setEditAsset(undefined);
+  }
+
+  function openEdit(asset: Asset) {
+    setEditAsset(asset);
+    setShowForm(true);
+  }
+
+  function openNew() {
+    setEditAsset(undefined);
+    setShowForm(true);
+  }
+
+  async function handleDelete() {
+    if (!deleteTarget) return;
+    setDeleteError('');
+    try {
+      await assetsService.delete(deleteTarget.id);
+      setAssets((prev) => prev.filter((a) => a.id !== deleteTarget.id));
+      setDeleteTarget(null);
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : 'Error al eliminar');
+      setDeleteTarget(null);
+    }
+  }
+
+  return (
+    <div className="p-6 max-w-5xl mx-auto">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-primary mb-0.5">Activos</h1>
+          <p className="text-secondary text-sm">Catálogo de instrumentos operados</p>
+        </div>
+        <button
+          onClick={openNew}
+          className="px-4 py-2 text-sm font-medium text-base bg-brand-strong hover:bg-brand rounded-lg transition-colors"
+        >
+          + Nuevo activo
+        </button>
+      </div>
+
+      {/* Error persistente */}
+      {deleteError && (
+        <div className="mb-4 text-danger text-sm bg-loss-bg border border-loss/20 rounded-lg px-4 py-3 flex items-center justify-between">
+          <span>{deleteError}</span>
+          <button onClick={() => setDeleteError('')} className="text-tertiary hover:text-primary ml-4">✕</button>
+        </div>
+      )}
+
+      {/* Error de carga */}
+      {error && (
+        <div className="text-danger text-sm bg-loss-bg border border-loss/20 rounded-lg px-4 py-3">{error}</div>
+      )}
+
+      {/* Skeleton */}
+      {loading && (
+        <div className="bg-surface border border-subtle rounded-xl overflow-hidden animate-pulse">
+          <div className="h-10 bg-elevated border-b border-subtle" />
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="h-14 border-b border-subtle last:border-0 px-4 flex items-center gap-4">
+              <div className="h-4 w-20 bg-elevated rounded" />
+              <div className="h-4 w-32 bg-elevated rounded" />
+              <div className="h-5 w-16 bg-elevated rounded-full" />
+              <div className="h-4 w-12 bg-elevated rounded ml-auto" />
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Tabla */}
+      {!loading && !error && assets.length > 0 && (
+        <div className="bg-surface border border-subtle rounded-xl overflow-hidden">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-elevated border-b border-subtle">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-tertiary uppercase tracking-wide">Símbolo</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-tertiary uppercase tracking-wide">Nombre</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-tertiary uppercase tracking-wide">Tipo</th>
+                <th className="px-4 py-3 text-right text-xs font-semibold text-tertiary uppercase tracking-wide">Pip Value</th>
+                <th className="px-4 py-3 text-right text-xs font-semibold text-tertiary uppercase tracking-wide">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {assets.map((asset) => (
+                <tr
+                  key={asset.id}
+                  className="border-b border-subtle last:border-0 hover:bg-elevated/50 transition-colors"
+                >
+                  <td className="px-4 py-3 font-semibold text-primary tracking-wide">{asset.symbol}</td>
+                  <td className="px-4 py-3 text-secondary">{asset.name ?? <span className="text-dimmed">—</span>}</td>
+                  <td className="px-4 py-3">
+                    <span className={['text-xs font-medium px-2.5 py-1 rounded-full border', TYPE_COLORS[asset.type]].join(' ')}>
+                      {TYPE_LABELS[asset.type]}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-right text-secondary">
+                    {asset.pip_value != null ? asset.pip_value : <span className="text-dimmed">—</span>}
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      <button
+                        onClick={() => openEdit(asset)}
+                        className="text-xs text-secondary hover:text-primary bg-elevated hover:bg-overlay border border-muted rounded-md px-2.5 py-1 transition-colors"
+                      >
+                        Editar
+                      </button>
+                      <button
+                        onClick={() => { setDeleteError(''); setDeleteTarget(asset); }}
+                        className="text-xs text-danger hover:opacity-80 bg-loss-bg border border-loss/20 rounded-md px-2.5 py-1 transition-opacity"
+                      >
+                        Eliminar
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Empty state */}
+      {!loading && !error && assets.length === 0 && <EmptyState onNew={openNew} />}
+
+      {/* Modal formulario */}
+      {showForm && (
+        <AssetForm
+          asset={editAsset}
+          onClose={() => { setShowForm(false); setEditAsset(undefined); }}
+          onSaved={handleSaved}
+        />
+      )}
+
+      {/* Modal confirmación de borrado */}
+      {deleteTarget && (
+        <ConfirmDialog
+          assetName={deleteTarget.symbol}
+          onConfirm={handleDelete}
+          onCancel={() => setDeleteTarget(null)}
+        />
+      )}
     </div>
   );
 }

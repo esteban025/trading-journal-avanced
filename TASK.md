@@ -235,3 +235,6 @@
 - [✔] Probar todos los filtros combinados en el listado
 - [✔] Probar exportación CSV y Excel
 - [✔] Verificar que no se pueden eliminar registros con dependencias
+
+
+## CORECCIONES

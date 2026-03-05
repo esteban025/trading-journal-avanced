@@ -79,23 +79,85 @@ export async function getTradeById(req: Request, res: Response): Promise<void> {
 
 export async function createTrade(req: Request, res: Response): Promise<void> {
   const body = req.body as Record<string, unknown>;
-  const { account_id, asset_id, strategy_id, direction, entry_date, entry_price, position_size, stop_loss, take_profit, comment } = body;
+  const {
+    account_id, asset_id, strategy_id, direction,
+    entry_date, exit_date,
+    entry_price, exit_price,
+    position_size,
+    stop_loss, take_profit,
+    swap = 0, commission = 0, rollover = 0,
+    comment,
+  } = body;
 
   if (!account_id || !asset_id || !direction || !entry_date || entry_price === undefined || position_size === undefined) {
-    res.status(400).json({ error: 'account_id, asset_id, direction, entry_date, entry_price, position_size are required' });
+    res.status(400).json({ error: 'account_id, asset_id, direction, entry_date, entry_price, position_size son requeridos' });
     return;
   }
 
+  // Si se proporciona precio de salida, la fecha de salida también es obligatoria y viceversa
+  if ((exit_price !== undefined && exit_price !== null) && !exit_date) {
+    res.status(400).json({ error: 'exit_date es requerida cuando se proporciona exit_price' });
+    return;
+  }
+  if (exit_date && (exit_price === undefined || exit_price === null)) {
+    res.status(400).json({ error: 'exit_price es requerido cuando se proporciona exit_date' });
+    return;
+  }
+
+  const isClosed = exit_price !== undefined && exit_price !== null && exit_date;
+
+  let gross_pnl: number | null = null;
+  let pnl_val: number | null = null;
+
+  if (isClosed) {
+    // Obtener pip_value del activo para el cálculo
+    const [[asset]] = await db.query<RowDataPacket[]>(
+      'SELECT pip_value FROM assets WHERE id = ?',
+      [asset_id]
+    ) as [RowDataPacket[], unknown];
+
+    const pipValue = Number(asset?.pip_value) || 1;
+    const priceDiff = direction === 'long'
+      ? Number(exit_price) - Number(entry_price)
+      : Number(entry_price) - Number(exit_price);
+
+    gross_pnl = priceDiff * (Number(position_size) * 100) * pipValue;
+    pnl_val = gross_pnl - Number(swap) - Number(commission) - Number(rollover);
+  }
+
+  const status = isClosed ? 'closed' : 'open';
+
   const [result] = await db.query<ResultSetHeader>(
     `INSERT INTO trades
-       (account_id, asset_id, strategy_id, direction, entry_date, entry_price,
-        position_size, stop_loss, take_profit, comment, status)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'open')`,
-    [account_id, asset_id, strategy_id ?? null, direction, entry_date, entry_price,
-      position_size, stop_loss ?? null, take_profit ?? null, comment ?? null]
+       (account_id, asset_id, strategy_id, direction,
+        entry_date, exit_date,
+        entry_price, exit_price,
+        position_size, stop_loss, take_profit,
+        swap, commission, rollover,
+        gross_pnl, pnl,
+        comment, status)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      account_id, asset_id, strategy_id ?? null, direction,
+      entry_date, exit_date ?? null,
+      entry_price, exit_price ?? null,
+      position_size, stop_loss ?? null, take_profit ?? null,
+      Number(swap), Number(commission), Number(rollover),
+      gross_pnl, pnl_val,
+      comment ?? null, status,
+    ]
   );
 
-  const [rows] = await db.query<RowDataPacket[]>('SELECT * FROM trades WHERE id = ?', [result.insertId]);
+  const [rows] = await db.query<RowDataPacket[]>(
+    `SELECT t.*, a.symbol AS asset_symbol, a.name AS asset_name, a.pip_value,
+            s.name AS strategy_name, ac.name AS account_name
+     FROM trades t
+     JOIN assets a    ON t.asset_id   = a.id
+     JOIN accounts ac ON t.account_id = ac.id
+     LEFT JOIN strategies s ON t.strategy_id = s.id
+     WHERE t.id = ?`,
+    [result.insertId]
+  );
   res.status(201).json(rows[0]);
 }
 

@@ -17,10 +17,15 @@ interface FormData {
   strategy_id: string;
   direction: TradeDirection;
   entry_date: string;
+  exit_date: string;
   entry_price: string;
+  exit_price: string;
   position_size: string;
   stop_loss: string;
   take_profit: string;
+  swap: string;
+  commission: string;
+  rollover: string;
   comment: string;
 }
 
@@ -44,10 +49,15 @@ export function NewTradeModal({ onClose, onCreated }: NewTradeModalProps) {
     strategy_id: '',
     direction: 'long',
     entry_date: toLocalDatetimeValue(new Date()),
+    exit_date: '',
     entry_price: '',
+    exit_price: '',
     position_size: '',
     stop_loss: '',
     take_profit: '',
+    swap: '',
+    commission: '',
+    rollover: '',
     comment: '',
   });
   const [error, setError] = useState('');
@@ -112,11 +122,24 @@ export function NewTradeModal({ onClose, onCreated }: NewTradeModalProps) {
       return;
     }
 
+    // Salida: si uno de los dos está, ambos son requeridos
+    const hasExitDate = form.exit_date.trim() !== '';
+    const hasExitPrice = form.exit_price.trim() !== '';
+    if (hasExitDate && !hasExitPrice) { setError('Si ingresas fecha de salida, debes ingresar el precio de salida'); return; }
+    if (hasExitPrice && !hasExitDate) { setError('Si ingresas precio de salida, debes ingresar la fecha de salida'); return; }
+
+    const exit_price = hasExitPrice ? parseFloat(form.exit_price) : undefined;
+    if (exit_price !== undefined && (isNaN(exit_price) || exit_price <= 0)) {
+      setError('El precio de salida debe ser un número positivo');
+      return;
+    }
+
     const stop_loss = form.stop_loss.trim() !== '' ? parseFloat(form.stop_loss) : undefined;
     const take_profit = form.take_profit.trim() !== '' ? parseFloat(form.take_profit) : undefined;
-
     if (stop_loss !== undefined && isNaN(stop_loss)) { setError('Stop Loss inválido'); return; }
     if (take_profit !== undefined && isNaN(take_profit)) { setError('Take Profit inválido'); return; }
+
+    const toDbDate = (local: string) => new Date(local).toISOString().slice(0, 19).replace('T', ' ');
 
     setSubmitting(true);
     try {
@@ -125,11 +148,16 @@ export function NewTradeModal({ onClose, onCreated }: NewTradeModalProps) {
         asset_id: Number(form.asset_id),
         strategy_id: form.strategy_id ? Number(form.strategy_id) : null,
         direction: form.direction,
-        entry_date: new Date(form.entry_date).toISOString().slice(0, 19).replace('T', ' '),
+        entry_date: toDbDate(form.entry_date),
+        exit_date: hasExitDate ? toDbDate(form.exit_date) : null,
         entry_price,
+        exit_price: exit_price ?? null,
         position_size,
         stop_loss: stop_loss ?? null,
         take_profit: take_profit ?? null,
+        swap: form.swap.trim() !== '' ? parseFloat(form.swap) : 0,
+        commission: form.commission.trim() !== '' ? parseFloat(form.commission) : 0,
+        rollover: form.rollover.trim() !== '' ? parseFloat(form.rollover) : 0,
         comment: form.comment.trim() || null,
       });
       onCreated(created);
@@ -236,19 +264,31 @@ export function NewTradeModal({ onClose, onCreated }: NewTradeModalProps) {
               </div>
             </div>
 
-            {/* Fecha de entrada */}
-            <div>
-              <label className={labelCls}>Fecha y hora de entrada *</label>
-              <input
-                type="datetime-local"
-                name="entry_date"
-                value={form.entry_date}
-                onChange={handleChange}
-                className={inputCls}
-              />
+            {/* Fechas de entrada y salida */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className={labelCls}>Fecha y hora de entrada *</label>
+                <input
+                  type="datetime-local"
+                  name="entry_date"
+                  value={form.entry_date}
+                  onChange={handleChange}
+                  className={inputCls}
+                />
+              </div>
+              <div>
+                <label className={labelCls}>Fecha y hora de salida <span className="text-dimmed normal-case">(opcional)</span></label>
+                <input
+                  type="datetime-local"
+                  name="exit_date"
+                  value={form.exit_date}
+                  onChange={handleChange}
+                  className={inputCls}
+                />
+              </div>
             </div>
 
-            {/* Precio + Tamaño */}
+            {/* Precio de entrada y salida */}
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className={labelCls}>Precio de entrada *</label>
@@ -264,15 +304,70 @@ export function NewTradeModal({ onClose, onCreated }: NewTradeModalProps) {
                 />
               </div>
               <div>
-                <label className={labelCls}>Tamaño (lotaje) *</label>
+                <label className={labelCls}>Precio de salida <span className="text-dimmed normal-case">(opcional)</span></label>
                 <input
                   type="number"
-                  name="position_size"
-                  value={form.position_size}
+                  name="exit_price"
+                  value={form.exit_price}
                   onChange={handleChange}
-                  placeholder="0.01"
+                  placeholder="0.00000"
                   step="any"
                   min="0"
+                  className={inputCls}
+                />
+              </div>
+            </div>
+
+            {/* Tamaño de posición */}
+            <div>
+              <label className={labelCls}>Tamaño (lotaje) *</label>
+              <input
+                type="number"
+                name="position_size"
+                value={form.position_size}
+                onChange={handleChange}
+                placeholder="0.01"
+                step="0.01"
+                min="0"
+                className={inputCls}
+              />
+            </div>
+
+            {/* Swap + Comisiones + Rollover */}
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <label className={labelCls}>Swap</label>
+                <input
+                  type="number"
+                  name="swap"
+                  value={form.swap}
+                  onChange={handleChange}
+                  placeholder="0.00"
+                  step="any"
+                  className={inputCls}
+                />
+              </div>
+              <div>
+                <label className={labelCls}>Comisiones</label>
+                <input
+                  type="number"
+                  name="commission"
+                  value={form.commission}
+                  onChange={handleChange}
+                  placeholder="0.00"
+                  step="any"
+                  className={inputCls}
+                />
+              </div>
+              <div>
+                <label className={labelCls}>Rollover</label>
+                <input
+                  type="number"
+                  name="rollover"
+                  value={form.rollover}
+                  onChange={handleChange}
+                  placeholder="0.00"
+                  step="any"
                   className={inputCls}
                 />
               </div>

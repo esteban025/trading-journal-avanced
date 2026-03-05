@@ -84,27 +84,27 @@ export function Sidebar() {
   }
 
   return (
-    <aside className="w-64 min-h-screen bg-slate-900 border-r border-slate-800 flex flex-col">
+    <aside className="w-64 min-h-screen bg-surface border-r border-subtle flex flex-col">
       {/* Brand */}
-      <div className="px-6 py-5 border-b border-slate-800">
+      <div className="px-6 py-5 border-b border-subtle">
         <div className="flex items-center gap-2">
-          <span className="text-emerald-400 text-2xl font-bold">◈</span>
+          <span className="text-brand text-2xl font-bold">◈</span>
           <div>
-            <p className="text-white font-semibold text-sm leading-tight">Trading Journal</p>
-            <p className="text-slate-500 text-xs">Portfolio tracker</p>
+            <p className="text-primary font-semibold text-sm leading-tight">Trading Journal</p>
+            <p className="text-tertiary text-xs">Portfolio tracker</p>
           </div>
         </div>
       </div>
 
       {/* Account selector */}
-      <div className="px-4 py-3 border-b border-slate-800">
-        <label className="block text-xs text-slate-500 mb-1 font-medium uppercase tracking-wide">
+      <div className="px-4 py-3 border-b border-subtle">
+        <label className="block text-xs text-tertiary mb-1 font-medium uppercase tracking-wide">
           Cuenta activa
         </label>
         <select
           value={state.activeAccountId ?? ''}
           onChange={handleAccountChange}
-          className="w-full bg-slate-800 border border-slate-700 text-slate-200 text-sm rounded-md px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+          className="w-full bg-elevated border border-muted text-primary text-sm rounded-md px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-brand"
         >
           <option value="">Todas las cuentas</option>
           {accounts.map((a) => (
@@ -126,8 +126,8 @@ export function Sidebar() {
               [
                 'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
                 isActive
-                  ? 'bg-emerald-500/10 text-emerald-400'
-                  : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200',
+                  ? 'bg-brand-subtle text-brand'
+                  : 'text-secondary hover:bg-elevated hover:text-primary',
               ].join(' ')
             }
           >
@@ -140,7 +140,7 @@ export function Sidebar() {
         <div className="pt-3">
           <button
             onClick={() => navigate('/trades/new')}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm font-medium bg-emerald-500 hover:bg-emerald-400 text-slate-900 transition-colors"
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm font-medium bg-brand-strong hover:bg-brand text-base transition-colors"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -151,8 +151,8 @@ export function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="px-4 py-3 border-t border-slate-800">
-        <p className="text-xs text-slate-600 text-center">v1.0.0</p>
+      <div className="px-4 py-3 border-t border-subtle">
+        <p className="text-xs text-dimmed text-center">v1.0.0</p>
       </div>
     </aside>
   );

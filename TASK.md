@@ -129,11 +129,11 @@
 
 ## Fase 10: Frontend — Gestión de Cuentas
 
-- [ ] Crear página `AccountsPage.tsx` con listado de cuentas en tarjetas
-- [ ] Mostrar por cada cuenta: nombre, moneda, balance inicial, balance actual, total trades
-- [ ] Crear modal/formulario `AccountForm.tsx` para crear y editar cuentas
-- [ ] Implementar botón de eliminar con confirmación
-- [ ] Selector de cuenta activa en el sidebar (persiste en Context)
+- [✔] Crear página `AccountsPage.tsx` con listado de cuentas en tarjetas
+- [✔] Mostrar por cada cuenta: nombre, moneda, balance inicial, balance actual, total trades
+- [✔] Crear modal/formulario `AccountForm.tsx` para crear y editar cuentas
+- [✔] Implementar botón de eliminar con confirmación
+- [✔] Selector de cuenta activa en el sidebar (persiste en Context)
 
 ---
 

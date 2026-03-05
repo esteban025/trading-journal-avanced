@@ -157,8 +157,8 @@
 
 ## Fase 13: Frontend — Registro de Trades
 
-- [ ] Crear página `NewTradePage.tsx` con formulario completo
-- [ ] Campos del formulario:
+- [✔] Crear página `NewTradePage.tsx` con formulario completo
+- [✔] Campos del formulario:
   - Cuenta (select)
   - Activo (select)
   - Estrategia (select opcional)
@@ -169,39 +169,39 @@
   - Stop Loss (opcional)
   - Take Profit (opcional)
   - Notas/comentario (textarea)
-- [ ] Validación de campos requeridos antes de enviar
-- [ ] Redirigir al listado tras crear el trade
+- [✔] Validación de campos requeridos antes de enviar
+- [✔] Redirigir al listado tras crear el trade
 
 ---
 
 ## Fase 14: Frontend — Listado de Trades
 
-- [ ] Crear página `TradesPage.tsx` con tabla paginada
-- [ ] Columnas: fecha entrada, activo, dirección, lotaje, precio entrada, precio salida, PnL, estado, estrategia
-- [ ] Panel de filtros: cuenta, activo, estrategia, dirección, estado, período
-- [ ] Ordenamiento por columnas (click en cabecera)
-- [ ] Paginación con selector de registros por página
-- [ ] Botones por fila: cerrar trade (si está abierto), editar, eliminar
-- [ ] Botones de exportación CSV y Excel (aplican los filtros activos)
+- [✔] Crear página `TradesPage.tsx` con tabla paginada
+- [✔] Columnas: fecha entrada, activo, dirección, lotaje, precio entrada, precio salida, PnL, estado, estrategia
+- [✔] Panel de filtros: cuenta, activo, estrategia, dirección, estado, período
+- [✔] Ordenamiento por columnas (click en cabecera)
+- [✔] Paginación con selector de registros por página
+- [✔] Botones por fila: cerrar trade (si está abierto), editar, eliminar
+- [✔] Botones de exportación CSV y Excel (aplican los filtros activos)
 
 ---
 
 ## Fase 15: Frontend — Cerrar Trade
 
-- [ ] Crear modal `CloseTradeModal.tsx`
-- [ ] Campos: precio de salida, fecha de salida, swap, comisiones, rollover
-- [ ] Mostrar preview del PnL calculado en tiempo real antes de confirmar
-- [ ] Al confirmar, llamar al endpoint `PUT /api/trades/:id/close`
-- [ ] Actualizar la tabla tras el cierre
+- [✔] Crear modal `CloseTradeModal.tsx`
+- [✔] Campos: precio de salida, fecha de salida, swap, comisiones, rollover
+- [✔] Mostrar preview del PnL calculado en tiempo real antes de confirmar
+- [✔] Al confirmar, llamar al endpoint `PUT /api/trades/:id/close`
+- [✔] Actualizar la tabla tras el cierre
 
 ---
 
 ## Fase 16: Frontend — Dashboard de métricas
 
-- [ ] Crear página `DashboardPage.tsx`
-- [ ] Tarjetas KPI: balance actual, win rate, profit factor, ratio R/B, ganancia promedio, pérdida promedio, drawdown máximo, total trades
-- [ ] Selector de período y cuenta en la parte superior
-- [ ] Calcular drawdown máximo en el frontend a partir de la equity curve
+- [✔] Crear página `DashboardPage.tsx`
+- [✔] Tarjetas KPI: balance actual, win rate, profit factor, ratio R/B, ganancia promedio, pérdida promedio, drawdown máximo, total trades
+- [✔] Selector de período y cuenta en la parte superior
+- [✔] Calcular drawdown máximo en el frontend a partir de la equity curve
 
 ---
 

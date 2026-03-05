@@ -207,12 +207,12 @@
 
 ## Fase 17: Frontend — Gráficos
 
-- [ ] Crear página `ReportsPage.tsx`
-- [ ] Gráfico de línea: curva de equity acumulada
-- [ ] Gráfico de barras: PnL por activo
-- [ ] Gráfico de barras: win rate y PnL por estrategia
-- [ ] Tooltips informativos en todos los gráficos
-- [ ] Todos los gráficos respetan filtros de período y cuenta activa
+- [✔] Crear página `ReportsPage.tsx`
+- [✔] Gráfico de línea: curva de equity acumulada
+- [✔] Gráfico de barras: PnL por activo
+- [✔] Gráfico de barras: win rate y PnL por estrategia
+- [✔] Tooltips informativos en todos los gráficos
+- [✔] Todos los gráficos respetan filtros de período y cuenta activa
 
 ---
 

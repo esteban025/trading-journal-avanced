@@ -179,7 +179,17 @@ export async function closeTrade(req: Request, res: Response): Promise<void> {
     [exit_price, exit_date, swap, commission, rollover, gross_pnl, pnl, id]
   );
 
-  const [rows] = await db.query<RowDataPacket[]>('SELECT * FROM trades WHERE id = ?', [id]);
+  // Retornamos con JOIN para que el frontend tenga asset_symbol, strategy_name, etc.
+  const [rows] = await db.query<RowDataPacket[]>(
+    `SELECT t.*, a.symbol AS asset_symbol, a.name AS asset_name, a.pip_value,
+            s.name AS strategy_name, ac.name AS account_name
+     FROM trades t
+     JOIN assets a    ON t.asset_id   = a.id
+     JOIN accounts ac ON t.account_id = ac.id
+     LEFT JOIN strategies s ON t.strategy_id = s.id
+     WHERE t.id = ?`,
+    [id]
+  );
   res.json(rows[0]);
 }
 

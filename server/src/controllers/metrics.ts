@@ -13,14 +13,53 @@ function periodClause(period: string | undefined, field = 'exit_date'): string {
 }
 
 export async function getSummary(req: Request, res: Response): Promise<void> {
-  const { account_id } = req.query as Record<string, string>;
-  const params: unknown[] = [];
-  let query = 'SELECT * FROM trade_metrics';
-  if (account_id) {
-    query += ' WHERE account_id = ?';
-    params.push(account_id);
+  const { account_id, period } = req.query as Record<string, string>;
+
+  // Condición de período en la cláusula ON del LEFT JOIN (así cuentas sin trades en el período siguen apareciendo con ceros)
+  let periodOnClause = '';
+  if (period) {
+    switch (period) {
+      case 'day': periodOnClause = 'AND DATE(t.exit_date) = CURDATE()'; break;
+      case 'week': periodOnClause = 'AND YEARWEEK(t.exit_date, 1) = YEARWEEK(NOW(), 1)'; break;
+      case 'month': periodOnClause = 'AND YEAR(t.exit_date) = YEAR(NOW()) AND MONTH(t.exit_date) = MONTH(NOW())'; break;
+      case 'year': periodOnClause = 'AND YEAR(t.exit_date) = YEAR(NOW())'; break;
+    }
   }
-  const [rows] = await db.query<RowDataPacket[]>(query, params);
+
+  const whereClause = account_id ? 'WHERE a.id = ?' : '';
+  const params: unknown[] = account_id ? [account_id] : [];
+
+  const [rows] = await db.query<RowDataPacket[]>(
+    `SELECT
+       a.id AS account_id,
+       a.name AS account_name,
+       COUNT(t.id) AS total_closed_trades,
+       ROUND(
+         COUNT(CASE WHEN t.pnl > 0 THEN 1 END) * 100.0 /
+         NULLIF(COUNT(t.id), 0),
+       2) AS win_rate,
+       ROUND(AVG(CASE WHEN t.pnl > 0 THEN t.pnl END), 2) AS avg_win,
+       ROUND(AVG(CASE WHEN t.pnl < 0 THEN t.pnl END), 2) AS avg_loss,
+       ROUND(
+         ABS(AVG(CASE WHEN t.pnl > 0 THEN t.pnl END)) /
+         NULLIF(ABS(AVG(CASE WHEN t.pnl < 0 THEN t.pnl END)), 0),
+       2) AS avg_win_loss_ratio,
+       ROUND(COALESCE(SUM(CASE WHEN t.pnl > 0 THEN t.pnl ELSE 0 END), 0), 2) AS total_wins,
+       ROUND(COALESCE(SUM(CASE WHEN t.pnl < 0 THEN t.pnl ELSE 0 END), 0), 2) AS total_losses,
+       ROUND(COALESCE(SUM(t.pnl), 0), 2) AS net_pnl,
+       ROUND(
+         COALESCE(ABS(SUM(CASE WHEN t.pnl > 0 THEN t.pnl ELSE 0 END)), 0) /
+         NULLIF(ABS(COALESCE(SUM(CASE WHEN t.pnl < 0 THEN t.pnl ELSE 0 END), 0)), 0),
+       2) AS profit_factor
+     FROM accounts a
+     LEFT JOIN trades t ON a.id = t.account_id
+       AND t.status = 'closed'
+       AND t.exit_date IS NOT NULL
+       ${periodOnClause}
+     ${whereClause}
+     GROUP BY a.id, a.name`,
+    params
+  );
   res.json(rows);
 }
 

@@ -202,11 +202,9 @@ export function DashboardPage() {
   // Cuenta activa para mostrar balance
   const activeAccount = accounts.find((a) => a.id === state.activeAccountId) ?? null;
 
-  // Balance actual = initial_balance + cumulative_pnl del último punto de equity
+  // Balance actual = siempre el saldo real de la cuenta (todos los trades cerrados)
   const lastEquityPnl = equity.length > 0 ? equity[equity.length - 1].cumulative_pnl : 0;
-  const currentBalance = activeAccount
-    ? activeAccount.initial_balance + lastEquityPnl
-    : null;
+  const currentBalance = activeAccount ? activeAccount.current_balance : null;
 
   const winRate = summary?.win_rate ?? null;
   const profitFactor = summary?.profit_factor ?? null;
@@ -296,7 +294,9 @@ export function DashboardPage() {
             }
             subLabel={
               activeAccount
-                ? `Inicial: ${activeAccount.currency} ${activeAccount.initial_balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}`
+                ? period
+                  ? `PnL período: ${lastEquityPnl >= 0 ? '+' : ''}${lastEquityPnl.toFixed(2)}`
+                  : `Inicial: ${activeAccount.currency} ${activeAccount.initial_balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}`
                 : 'Selecciona una cuenta'
             }
             variant={

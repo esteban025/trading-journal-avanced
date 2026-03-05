@@ -229,9 +229,9 @@
 
 ## Fase 19: Revisión final
 
-- [ ] Flujo completo: crear cuenta → activo → estrategia → registrar trade → cerrar trade → ver métricas
-- [ ] Verificar que el balance de cuenta se calcula correctamente
-- [ ] Verificar fórmulas de PnL (long y short) con valores reales
-- [ ] Probar todos los filtros combinados en el listado
-- [ ] Probar exportación CSV y Excel
-- [ ] Verificar que no se pueden eliminar registros con dependencias
+- [✔] Flujo completo: crear cuenta → activo → estrategia → registrar trade → cerrar trade → ver métricas
+- [✔] Verificar que el balance de cuenta se calcula correctamente
+- [✔] Verificar fórmulas de PnL (long y short) con valores reales
+- [✔] Probar todos los filtros combinados en el listado
+- [✔] Probar exportación CSV y Excel
+- [✔] Verificar que no se pueden eliminar registros con dependencias

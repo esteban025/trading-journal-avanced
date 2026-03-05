@@ -6,6 +6,7 @@ import {
 import { metricsService } from '../services/metricsService';
 import { accountsService } from '../services/accountsService';
 import { useAppContext } from '../context/AppContext';
+import { usePageAnimation } from '../hooks/usePageAnimation';
 import type { Account, EquityPoint, AssetMetrics, StrategyMetrics, Period } from '../types';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -84,6 +85,7 @@ function EmptyChart({ message }: { message: string }) {
 
 export function ReportsPage() {
   const { state, dispatch } = useAppContext();
+  const pageRef = usePageAnimation();
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [period, setPeriod] = useState<Period | ''>('');
 
@@ -142,7 +144,7 @@ export function ReportsPage() {
   }));
 
   return (
-    <div className="p-6 flex flex-col gap-6">
+    <div ref={pageRef} className="p-6 flex flex-col gap-6">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-primary mb-1">Reportes</h1>

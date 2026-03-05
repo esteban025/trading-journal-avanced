@@ -1,7 +1,9 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
+import gsap from 'gsap';
 import { metricsService } from '../services/metricsService';
 import { accountsService } from '../services/accountsService';
 import { useAppContext } from '../context/AppContext';
+import { usePageAnimation } from '../hooks/usePageAnimation';
 import type { Account, MetricsSummary, EquityPoint, Period } from '../types';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -136,6 +138,8 @@ function IconScale() {
 
 export function DashboardPage() {
   const { state, dispatch } = useAppContext();
+  const pageRef = usePageAnimation();
+  const kpiGridRef = useRef<HTMLDivElement>(null);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [period, setPeriod] = useState<Period | ''>('');
   const [summary, setSummary] = useState<MetricsSummary | null>(null);
@@ -181,6 +185,20 @@ export function DashboardPage() {
     loadMetrics();
   }, [loadMetrics]);
 
+  // Stagger KPI cards al terminar de cargar
+  useEffect(() => {
+    if (!loading && kpiGridRef.current && kpiGridRef.current.children.length > 0) {
+      gsap.from(kpiGridRef.current.children, {
+        opacity: 0,
+        y: 16,
+        duration: 0.45,
+        stagger: 0.06,
+        ease: 'power2.out',
+        clearProps: 'all',
+      });
+    }
+  }, [loading]);
+
   // Cuenta activa para mostrar balance
   const activeAccount = accounts.find((a) => a.id === state.activeAccountId) ?? null;
 
@@ -198,7 +216,7 @@ export function DashboardPage() {
   const totalTrades = summary?.total_closed_trades ?? null;
 
   return (
-    <div className="p-6 flex flex-col gap-6">
+    <div ref={pageRef} className="p-6 flex flex-col gap-6">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-primary mb-1">Dashboard</h1>
@@ -267,7 +285,7 @@ export function DashboardPage() {
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div ref={kpiGridRef} className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {/* Balance actual */}
           <KpiCard
             label="Balance actual"

@@ -218,12 +218,12 @@
 
 ## Fase 18: Polish y animaciones
 
-- [ ] Animaciones de entrada a las páginas con GSAP (fade + slide)
-- [ ] Animaciones en tarjetas KPI al cargar datos
-- [ ] Estados de carga (skeleton) en tablas y gráficos
-- [ ] Estados vacíos cuando no hay datos
-- [ ] Notificaciones de éxito/error en operaciones CRUD (toast)
-- [ ] Confirmación antes de eliminar cualquier registro
+- [✔] Animaciones de entrada a las páginas con GSAP (fade + slide)
+- [✔] Animaciones en tarjetas KPI al cargar datos
+- [✔] Estados de carga (skeleton) en tablas y gráficos
+- [✔] Estados vacíos cuando no hay datos
+- [✔] Notificaciones de éxito/error en operaciones CRUD (toast)
+- [✔] Confirmación antes de eliminar cualquier registro
 
 ---
 

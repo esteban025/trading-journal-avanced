@@ -74,3 +74,9 @@ html {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-overlay);
 }
+
+/* Toast animation */
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

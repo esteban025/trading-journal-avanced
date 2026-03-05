@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import type { Strategy } from '../types';
 import { strategiesService } from '../services/strategiesService';
 import { StrategyForm } from '../components/StrategyForm';
+import { useToast } from '../context/AppContext';
+import { usePageAnimation } from '../hooks/usePageAnimation';
 
 // ── ConfirmDialog ────────────────────────────────────────────────────────────
 
@@ -88,13 +90,14 @@ function EmptyState({ onNew }: { onNew: () => void }) {
 // ── StrategiesPage ────────────────────────────────────────────────────────────
 
 export function StrategiesPage() {
+  const toast = useToast();
+  const pageRef = usePageAnimation();
   const [strategies, setStrategies] = useState<Strategy[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editStrategy, setEditStrategy] = useState<Strategy | undefined>(undefined);
   const [deleteTarget, setDeleteTarget] = useState<Strategy | null>(null);
-  const [deleteError, setDeleteError] = useState('');
 
   async function loadStrategies() {
     try {
@@ -121,6 +124,7 @@ export function StrategiesPage() {
     });
     setShowForm(false);
     setEditStrategy(undefined);
+    toast(editStrategy ? 'Estrategia actualizada' : 'Estrategia creada');
   }
 
   function openEdit(strategy: Strategy) {
@@ -135,19 +139,19 @@ export function StrategiesPage() {
 
   async function handleDelete() {
     if (!deleteTarget) return;
-    setDeleteError('');
     try {
       await strategiesService.delete(deleteTarget.id);
       setStrategies((prev) => prev.filter((s) => s.id !== deleteTarget.id));
       setDeleteTarget(null);
+      toast('Estrategia eliminada');
     } catch (err) {
-      setDeleteError(err instanceof Error ? err.message : 'Error al eliminar');
       setDeleteTarget(null);
+      toast(err instanceof Error ? err.message : 'Error al eliminar', 'error');
     }
   }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div ref={pageRef} className="p-6 max-w-4xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -164,22 +168,9 @@ export function StrategiesPage() {
         </button>
       </div>
 
-      {/* Error persistente */}
-      {deleteError && (
-        <div className="mb-4 text-danger text-sm bg-loss-bg border border-loss/20 rounded-lg px-4 py-3 flex items-center justify-between">
-          <span>{deleteError}</span>
-          <button
-            onClick={() => setDeleteError('')}
-            className="text-tertiary hover:text-primary ml-4"
-          >
-            ✕
-          </button>
-        </div>
-      )}
-
       {/* Error de carga */}
       {error && (
-        <div className="text-danger text-sm bg-loss-bg border border-loss/20 rounded-lg px-4 py-3">
+        <div className="text-danger text-sm bg-loss-bg border border-loss/20 rounded-lg px-4 py-3 mb-4">
           {error}
         </div>
       )}

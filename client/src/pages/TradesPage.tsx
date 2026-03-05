@@ -13,7 +13,8 @@ import { tradesService } from '../services/tradesService';
 import { accountsService } from '../services/accountsService';
 import { assetsService } from '../services/assetsService';
 import { strategiesService } from '../services/strategiesService';
-import { useAppContext } from '../context/AppContext';
+import { useAppContext, useToast } from '../context/AppContext';
+import { usePageAnimation } from '../hooks/usePageAnimation';
 import { CloseTradeModal } from '../components/CloseTradeModal';
 import { NewTradeModal } from '../components/NewTradeModal';
 
@@ -83,6 +84,8 @@ const PERIODS: { value: Period | ''; label: string }[] = [
 
 export function TradesPage() {
   const { state } = useAppContext();
+  const toast = useToast();
+  const pageRef = usePageAnimation();
 
   // Catálogos para los filtros
   const [accounts, setAccounts] = useState<Account[]>([]);
@@ -110,7 +113,6 @@ export function TradesPage() {
   const [showNewTrade, setShowNewTrade] = useState(false);
   const [closeTarget, setCloseTarget] = useState<Trade | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Trade | null>(null);
-  const [actionError, setActionError] = useState('');
 
   // Cargar catálogos
   useEffect(() => {
@@ -193,6 +195,7 @@ export function TradesPage() {
   function handleClosed(updated: Trade) {
     setTrades((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
     setCloseTarget(null);
+    toast('Trade cerrado correctamente');
   }
 
   async function handleDelete() {
@@ -201,9 +204,10 @@ export function TradesPage() {
       await tradesService.delete(deleteTarget.id);
       setDeleteTarget(null);
       fetchTrades(filters);
+      toast('Trade eliminado');
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : 'Error al eliminar');
       setDeleteTarget(null);
+      toast(err instanceof Error ? err.message : 'Error al eliminar', 'error');
     }
   }
 
@@ -246,7 +250,7 @@ export function TradesPage() {
   const selectCls = 'bg-elevated border border-muted text-primary text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-brand';
 
   return (
-    <div className="p-6">
+    <div ref={pageRef} className="p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
@@ -276,14 +280,6 @@ export function TradesPage() {
           </button>
         </div>
       </div>
-
-      {/* Error de acción */}
-      {actionError && (
-        <div className="mb-3 text-danger text-sm bg-loss-bg border border-loss/20 rounded-lg px-4 py-2.5 flex justify-between">
-          <span>{actionError}</span>
-          <button onClick={() => setActionError('')} className="text-tertiary hover:text-primary ml-4">✕</button>
-        </div>
-      )}
 
       {/* Panel de filtros */}
       <div className="bg-surface border border-subtle rounded-xl px-4 py-3 mb-4 flex flex-wrap gap-2 items-center">
@@ -496,7 +492,7 @@ export function TradesPage() {
       {showNewTrade && (
         <NewTradeModal
           onClose={() => setShowNewTrade(false)}
-          onCreated={() => { setShowNewTrade(false); fetchTrades(filters); }}
+          onCreated={() => { setShowNewTrade(false); fetchTrades(filters); toast('Trade creado correctamente'); }}
         />
       )}
 

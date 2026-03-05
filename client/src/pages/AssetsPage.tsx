@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import type { Asset, AssetType } from '../types';
 import { assetsService } from '../services/assetsService';
 import { AssetForm } from '../components/AssetForm';
+import { useToast } from '../context/AppContext';
+import { usePageAnimation } from '../hooks/usePageAnimation';
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -95,13 +97,14 @@ function EmptyState({ onNew }: { onNew: () => void }) {
 // ── AssetsPage ───────────────────────────────────────────────────────────────
 
 export function AssetsPage() {
+  const toast = useToast();
+  const pageRef = usePageAnimation();
   const [assets, setAssets] = useState<Asset[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editAsset, setEditAsset] = useState<Asset | undefined>(undefined);
   const [deleteTarget, setDeleteTarget] = useState<Asset | null>(null);
-  const [deleteError, setDeleteError] = useState('');
 
   async function loadAssets() {
     try {
@@ -128,6 +131,7 @@ export function AssetsPage() {
     });
     setShowForm(false);
     setEditAsset(undefined);
+    toast(editAsset ? 'Activo actualizado' : 'Activo creado');
   }
 
   function openEdit(asset: Asset) {
@@ -142,19 +146,19 @@ export function AssetsPage() {
 
   async function handleDelete() {
     if (!deleteTarget) return;
-    setDeleteError('');
     try {
       await assetsService.delete(deleteTarget.id);
       setAssets((prev) => prev.filter((a) => a.id !== deleteTarget.id));
       setDeleteTarget(null);
+      toast('Activo eliminado');
     } catch (err) {
-      setDeleteError(err instanceof Error ? err.message : 'Error al eliminar');
       setDeleteTarget(null);
+      toast(err instanceof Error ? err.message : 'Error al eliminar', 'error');
     }
   }
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <div ref={pageRef} className="p-6 max-w-5xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -170,16 +174,11 @@ export function AssetsPage() {
       </div>
 
       {/* Error persistente */}
-      {deleteError && (
-        <div className="mb-4 text-danger text-sm bg-loss-bg border border-loss/20 rounded-lg px-4 py-3 flex items-center justify-between">
-          <span>{deleteError}</span>
-          <button onClick={() => setDeleteError('')} className="text-tertiary hover:text-primary ml-4">✕</button>
-        </div>
-      )}
-
-      {/* Error de carga */}
       {error && (
-        <div className="text-danger text-sm bg-loss-bg border border-loss/20 rounded-lg px-4 py-3">{error}</div>
+        <div className="mb-4 text-danger text-sm bg-loss-bg border border-loss/20 rounded-lg px-4 py-3 flex items-center justify-between">
+          <span>{error}</span>
+          <button onClick={() => setError('')} className="text-tertiary hover:text-primary ml-4">✕</button>
+        </div>
       )}
 
       {/* Skeleton */}
@@ -235,7 +234,7 @@ export function AssetsPage() {
                         Editar
                       </button>
                       <button
-                        onClick={() => { setDeleteError(''); setDeleteTarget(asset); }}
+                        onClick={() => { setDeleteTarget(asset); }}
                         className="text-xs text-danger hover:opacity-80 bg-loss-bg border border-loss/20 rounded-md px-2.5 py-1 transition-opacity"
                       >
                         Eliminar

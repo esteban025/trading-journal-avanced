@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { AccountForm } from '../components/AccountForm';
 import { accountsService } from '../services/accountsService';
-import { useAppContext } from '../context/AppContext';
+import { useAppContext, useToast } from '../context/AppContext';
+import { usePageAnimation } from '../hooks/usePageAnimation';
 import type { Account } from '../types';
 
 function formatCurrency(value: number, currency: string) {
@@ -188,13 +189,14 @@ function EmptyState({ onNew }: { onNew: () => void }) {
 /* ─── Page ───────────────────────────────────────────────────── */
 export function AccountsPage() {
   const { state, dispatch } = useAppContext();
+  const toast = useToast();
+  const pageRef = usePageAnimation();
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editTarget, setEditTarget] = useState<Account | undefined>();
   const [deleteTarget, setDeleteTarget] = useState<Account | undefined>();
-  const [deleteError, setDeleteError] = useState('');
 
   async function load() {
     setLoading(true);
@@ -232,11 +234,11 @@ export function AccountsPage() {
       }
       return [...prev, saved];
     });
+    toast(editTarget ? 'Cuenta actualizada' : 'Cuenta creada');
   }
 
   async function handleDelete() {
     if (!deleteTarget) return;
-    setDeleteError('');
     try {
       await accountsService.delete(deleteTarget.id);
       setAccounts((prev) => prev.filter((a) => a.id !== deleteTarget.id));
@@ -244,13 +246,15 @@ export function AccountsPage() {
         dispatch({ type: 'SET_ACTIVE_ACCOUNT', payload: null });
       }
       setDeleteTarget(undefined);
+      toast('Cuenta eliminada');
     } catch (err) {
-      setDeleteError(err instanceof Error ? err.message : 'No se pudo eliminar la cuenta');
+      setDeleteTarget(undefined);
+      toast(err instanceof Error ? err.message : 'No se pudo eliminar la cuenta', 'error');
     }
   }
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <div ref={pageRef} className="p-6 max-w-5xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -300,16 +304,9 @@ export function AccountsPage() {
                 dispatch({ type: 'SET_ACTIVE_ACCOUNT', payload: account.id })
               }
               onEdit={() => openEdit(account)}
-              onDelete={() => { setDeleteError(''); setDeleteTarget(account); }}
+              onDelete={() => setDeleteTarget(account)}
             />
           ))}
-        </div>
-      )}
-
-      {/* Delete error inline */}
-      {deleteError && (
-        <div className="mt-4 text-danger bg-loss-bg border border-danger/20 rounded-lg px-4 py-3 text-sm">
-          {deleteError}
         </div>
       )}
 

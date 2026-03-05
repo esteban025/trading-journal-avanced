@@ -1,0 +1,195 @@
+import { Request, Response } from 'express';
+import { ResultSetHeader, RowDataPacket } from 'mysql2';
+import { db } from '../db';
+
+function periodClause(period: string | undefined, field = 'entry_date'): string {
+  switch (period) {
+    case 'day': return `AND DATE(${field}) = CURDATE()`;
+    case 'week': return `AND YEARWEEK(${field}, 1) = YEARWEEK(NOW(), 1)`;
+    case 'month': return `AND YEAR(${field}) = YEAR(NOW()) AND MONTH(${field}) = MONTH(NOW())`;
+    case 'year': return `AND YEAR(${field}) = YEAR(NOW())`;
+    default: return '';
+  }
+}
+
+export async function getTrades(req: Request, res: Response): Promise<void> {
+  const q = req.query as Record<string, string>;
+  const { account_id, asset_id, strategy_id, direction, status, period, page = '1', limit = '20' } = q;
+
+  const conditions: string[] = [];
+  const params: unknown[] = [];
+
+  if (account_id) { conditions.push('t.account_id = ?'); params.push(account_id); }
+  if (asset_id) { conditions.push('t.asset_id = ?'); params.push(asset_id); }
+  if (strategy_id) { conditions.push('t.strategy_id = ?'); params.push(strategy_id); }
+  if (direction) { conditions.push('t.direction = ?'); params.push(direction); }
+  if (status) { conditions.push('t.status = ?'); params.push(status); }
+
+  const periodStr = periodClause(period);
+  const where = conditions.length
+    ? `WHERE ${conditions.join(' AND ')} ${periodStr}`
+    : periodStr ? `WHERE 1=1 ${periodStr}` : '';
+
+  const pageNum = Math.max(1, parseInt(page) || 1);
+  const limitNum = Math.min(100, Math.max(1, parseInt(limit) || 20));
+  const offset = (pageNum - 1) * limitNum;
+
+  const [rows] = await db.query<RowDataPacket[]>(
+    `SELECT t.*,
+            a.symbol AS asset_symbol, a.name AS asset_name,
+            s.name   AS strategy_name,
+            ac.name  AS account_name
+     FROM trades t
+     JOIN assets a    ON t.asset_id    = a.id
+     JOIN accounts ac ON t.account_id  = ac.id
+     LEFT JOIN strategies s ON t.strategy_id = s.id
+     ${where}
+     ORDER BY t.entry_date DESC
+     LIMIT ? OFFSET ?`,
+    [...params, limitNum, offset]
+  );
+
+  const countParams = [...params];
+  const [[{ total }]] = await db.query<RowDataPacket[]>(
+    `SELECT COUNT(*) AS total FROM trades t ${where}`,
+    countParams
+  ) as [RowDataPacket[], unknown];
+
+  res.json({ data: rows, total: Number(total), page: pageNum, limit: limitNum });
+}
+
+export async function getTradeById(req: Request, res: Response): Promise<void> {
+  const { id } = req.params;
+  const [rows] = await db.query<RowDataPacket[]>(
+    `SELECT t.*, a.symbol AS asset_symbol, a.name AS asset_name, a.pip_value,
+            s.name AS strategy_name, ac.name AS account_name
+     FROM trades t
+     JOIN assets a    ON t.asset_id   = a.id
+     JOIN accounts ac ON t.account_id = ac.id
+     LEFT JOIN strategies s ON t.strategy_id = s.id
+     WHERE t.id = ?`,
+    [id]
+  );
+  if (!rows.length) {
+    res.status(404).json({ error: 'Trade not found' });
+    return;
+  }
+  res.json(rows[0]);
+}
+
+export async function createTrade(req: Request, res: Response): Promise<void> {
+  const body = req.body as Record<string, unknown>;
+  const { account_id, asset_id, strategy_id, direction, entry_date, entry_price, position_size, stop_loss, take_profit, comment } = body;
+
+  if (!account_id || !asset_id || !direction || !entry_date || entry_price === undefined || position_size === undefined) {
+    res.status(400).json({ error: 'account_id, asset_id, direction, entry_date, entry_price, position_size are required' });
+    return;
+  }
+
+  const [result] = await db.query<ResultSetHeader>(
+    `INSERT INTO trades
+       (account_id, asset_id, strategy_id, direction, entry_date, entry_price,
+        position_size, stop_loss, take_profit, comment, status)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'open')`,
+    [account_id, asset_id, strategy_id ?? null, direction, entry_date, entry_price,
+      position_size, stop_loss ?? null, take_profit ?? null, comment ?? null]
+  );
+
+  const [rows] = await db.query<RowDataPacket[]>('SELECT * FROM trades WHERE id = ?', [result.insertId]);
+  res.status(201).json(rows[0]);
+}
+
+export async function updateTrade(req: Request, res: Response): Promise<void> {
+  const { id } = req.params;
+  const [existing] = await db.query<RowDataPacket[]>('SELECT id FROM trades WHERE id = ?', [id]);
+  if (!existing.length) {
+    res.status(404).json({ error: 'Trade not found' });
+    return;
+  }
+
+  const body = req.body as Record<string, unknown>;
+  const allowed = ['account_id', 'asset_id', 'strategy_id', 'direction',
+    'entry_date', 'entry_price', 'position_size', 'stop_loss',
+    'take_profit', 'comment'];
+  const updates: string[] = [];
+  const params: unknown[] = [];
+
+  for (const field of allowed) {
+    if (field in body) {
+      updates.push(`${field} = ?`);
+      params.push(body[field] ?? null);
+    }
+  }
+
+  if (!updates.length) {
+    res.status(400).json({ error: 'No fields to update' });
+    return;
+  }
+
+  params.push(id);
+  await db.query(`UPDATE trades SET ${updates.join(', ')} WHERE id = ?`, params);
+  const [rows] = await db.query<RowDataPacket[]>('SELECT * FROM trades WHERE id = ?', [id]);
+  res.json(rows[0]);
+}
+
+export async function closeTrade(req: Request, res: Response): Promise<void> {
+  const { id } = req.params;
+  const [existing] = await db.query<RowDataPacket[]>(
+    `SELECT t.*, a.pip_value
+     FROM trades t
+     JOIN assets a ON t.asset_id = a.id
+     WHERE t.id = ?`,
+    [id]
+  );
+
+  if (!existing.length) {
+    res.status(404).json({ error: 'Trade not found' });
+    return;
+  }
+
+  const trade = existing[0];
+  if (trade['status'] === 'closed') {
+    res.status(400).json({ error: 'Trade is already closed' });
+    return;
+  }
+
+  const body = req.body as Record<string, unknown>;
+  const { exit_price, exit_date, swap = 0, commission = 0, rollover = 0 } = body;
+
+  if (exit_price === undefined || !exit_date) {
+    res.status(400).json({ error: 'exit_price and exit_date are required' });
+    return;
+  }
+
+  // Fórmula PnL según la dirección del trade
+  // Long:  (exit_price - entry_price) * (position_size * 100) * pip_value
+  // Short: (entry_price - exit_price) * (position_size * 100) * pip_value
+  const pipValue = Number(trade['pip_value']) || 1;
+  const priceDiff = trade['direction'] === 'long'
+    ? Number(exit_price) - Number(trade['entry_price'])
+    : Number(trade['entry_price']) - Number(exit_price);
+  const gross_pnl = priceDiff * (Number(trade['position_size']) * 100) * pipValue;
+  const pnl = gross_pnl - Number(swap) - Number(commission) - Number(rollover);
+
+  await db.query(
+    `UPDATE trades
+     SET exit_price = ?, exit_date = ?, swap = ?, commission = ?, rollover = ?,
+         gross_pnl = ?, pnl = ?, status = 'closed'
+     WHERE id = ?`,
+    [exit_price, exit_date, swap, commission, rollover, gross_pnl, pnl, id]
+  );
+
+  const [rows] = await db.query<RowDataPacket[]>('SELECT * FROM trades WHERE id = ?', [id]);
+  res.json(rows[0]);
+}
+
+export async function deleteTrade(req: Request, res: Response): Promise<void> {
+  const { id } = req.params;
+  const [existing] = await db.query<RowDataPacket[]>('SELECT id FROM trades WHERE id = ?', [id]);
+  if (!existing.length) {
+    res.status(404).json({ error: 'Trade not found' });
+    return;
+  }
+  await db.query('DELETE FROM trades WHERE id = ?', [id]);
+  res.status(204).send();
+}

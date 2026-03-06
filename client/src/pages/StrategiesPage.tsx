@@ -4,7 +4,7 @@ import { strategiesService } from '../services/strategiesService';
 import { StrategyForm } from '../components/StrategyForm';
 import { useToast } from '../context/AppContext';
 import { usePageAnimation } from '../hooks/usePageAnimation';
-import { BeakerIcon } from '../assets/icons/icons-react';
+import { BeakerIcon, EditIcon, PlusIcon, TrashIcon } from '../assets/icons/icons-react';
 
 // ── ConfirmDialog ────────────────────────────────────────────────────────────
 
@@ -29,15 +29,15 @@ function ConfirmDialog({ strategyName, onConfirm, onCancel }: ConfirmDialogProps
       onClick={(e) => { if (e.target === e.currentTarget) onCancel(); }}
     >
       <div className="confirm-box">
-        <h3 className="text-primary font-semibold text-base mb-2">Eliminar estrategia</h3>
+        <h3 className="text-primary font-semibold mb-2">Eliminar estrategia</h3>
         <p className="text-secondary text-sm mb-5">
           ¿Estás seguro de que deseas eliminar{' '}
           <span className="text-primary font-medium">{strategyName}</span>?
           Esta acción no se puede deshacer.
         </p>
-        <div className="flex gap-3">
-          <button onClick={onCancel} className="btn-cancel">Cancelar</button>
-          <button onClick={onConfirm} className="btn-danger">Eliminar</button>
+        <div className="flex items-center gap-3">
+          <button onClick={onCancel} className="btn btn-secondary w-full">Cancelar</button>
+          <button onClick={onConfirm} className="btn btn-primary w-full">Eliminar</button>
         </div>
       </div>
     </div>
@@ -56,7 +56,7 @@ function EmptyState({ onNew }: { onNew: () => void }) {
       <p className="text-secondary text-sm mb-5">
         Define las estrategias que utilizas en tus operaciones
       </p>
-      <button onClick={onNew} className="btn-cta">+ Nueva estrategia</button>
+      <button onClick={onNew} className="btn btn-primary w-full">+ Nueva estrategia</button>
     </div>
   );
 }
@@ -134,7 +134,10 @@ export function StrategiesPage() {
             Catálogo de estrategias de trading
           </p>
         </div>
-        <button onClick={openNew} className="btn-cta">+ Nueva estrategia</button>
+        <button onClick={openNew} className="btn btn-primary">
+          <PlusIcon />
+          Nueva estrategia
+        </button>
       </div>
 
       {/* Error de carga */}
@@ -161,17 +164,17 @@ export function StrategiesPage() {
 
       {/* Tabla */}
       {!loading && !error && strategies.length > 0 && (
-        <div className="bg-surface border border-subtle rounded-xl overflow-hidden">
-          <table className="w-full text-sm">
+        <div className="container-table">
+          <table>
             <thead>
-              <tr className="bg-elevated border-b border-subtle">
-                <th className="px-4 py-3 text-left text-xs font-semibold text-tertiary uppercase tracking-wide">
+              <tr>
+                <th>
                   Nombre
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-tertiary uppercase tracking-wide">
+                <th>
                   Descripción
                 </th>
-                <th className="px-4 py-3 text-right text-xs font-semibold text-tertiary uppercase tracking-wide">
+                <th className="min">
                   Acciones
                 </th>
               </tr>
@@ -181,26 +184,29 @@ export function StrategiesPage() {
                 <tr
                   key={strategy.id}
                   style={{ animationDelay: `${i * 40}ms` }}
-                  className="row-enter border-b border-subtle last:border-0 hover:bg-elevated/50 transition-colors"
+                  className="row-enter"
                 >
-                  <td className="px-4 py-3 font-medium text-primary whitespace-nowrap">
+                  <td>
                     {strategy.name}
                   </td>
-                  <td className="px-4 py-3 text-secondary max-w-sm truncate">
+                  <td className='text-secondary'>
                     {strategy.description ?? (
                       <span className="text-dimmed">—</span>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <button onClick={() => openEdit(strategy)} className="btn-table-action">Editar</button>
+                  <td className="">
+                    <div className="actions">
+                      <button onClick={() => openEdit(strategy)} className="btn-act edit">
+                        <EditIcon />
+                      </button>
                       <button
                         onClick={() => {
-                          setDeleteError('');
                           setDeleteTarget(strategy);
                         }}
-                        className="btn-table-danger"
-                      >Eliminar</button>
+                        className="btn-act delete"
+                      >
+                        <TrashIcon />
+                      </button>
                     </div>
                   </td>
                 </tr>

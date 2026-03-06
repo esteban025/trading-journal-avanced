@@ -127,14 +127,14 @@ export function StrategyForm({ strategy, onClose, onSaved }: StrategyFormProps) 
             <button
               type="button"
               onClick={onClose}
-              className="btn-cancel"
+              className="btn btn-secondary w-full"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="btn-primary"
+              className="btn-primary btn w-full"
             >
               {loading
                 ? 'Guardando...'

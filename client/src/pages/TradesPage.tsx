@@ -18,15 +18,17 @@ import { useAppContext, useToast } from '../context/AppContext';
 import { usePageAnimation } from '../hooks/usePageAnimation';
 import { CloseTradeModal } from '../components/CloseTradeModal';
 import { NewTradeModal } from '../components/NewTradeModal';
+import { EditIcon, EyeIcon, PlusIcon, TrashIcon } from '../assets/icons/icons-react';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-function formatDate(iso: string | null): string {
-  if (!iso) return '—';
-  return new Date(iso).toLocaleDateString('es-ES', {
-    day: '2-digit', month: '2-digit', year: '2-digit',
-    hour: '2-digit', minute: '2-digit',
-  });
+function formatDate(iso: string | null): { date: string; hour: string } {
+  if (!iso) return { date: '—', hour: '—' };
+  const d = new Date(iso);
+  return {
+    date: d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' }),
+    hour: d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
+  };
 }
 
 function formatNum(n: number | null | undefined, decimals = 2): string {
@@ -59,11 +61,11 @@ function ConfirmDialog({ label, onConfirm, onCancel }: ConfirmDialogProps) {
       <div className="bg-surface border border-subtle rounded-xl shadow-2xl w-full max-w-sm mx-4 p-6">
         <h3 className="text-primary font-semibold mb-2">Eliminar trade</h3>
         <p className="text-secondary text-sm mb-5">{label}</p>
-        <div className="flex gap-3">
-          <button onClick={onCancel} className="flex-1 px-4 py-2 text-sm font-medium text-secondary bg-elevated border border-muted rounded-lg hover:text-primary transition-colors">
+        <div className="flex items-center gap-3">
+          <button onClick={onCancel} className="btn btn-secondary w-full">
             Cancelar
           </button>
-          <button onClick={onConfirm} className="flex-1 px-4 py-2 text-sm font-medium text-base bg-danger-strong hover:opacity-90 rounded-lg transition-opacity">
+          <button onClick={onConfirm} className="btn btn-primary w-full">
             Eliminar
           </button>
         </div>
@@ -240,9 +242,9 @@ export function TradesPage() {
     return (
       <th
         onClick={() => toggleSort(col)}
-        className="px-3 py-3 text-left text-xs font-semibold text-tertiary uppercase tracking-wide cursor-pointer select-none hover:text-primary transition-colors whitespace-nowrap"
+        className="trade"
       >
-        {label} {active ? (sortDir === 'asc' ? '↑' : '↓') : <span className="opacity-30">↕</span>}
+        {label} {active ? (sortDir === 'asc' ? '↑' : '↓') : <span className="opacity-50">↕</span>}
       </th>
     );
   }
@@ -262,91 +264,93 @@ export function TradesPage() {
         <div className="flex gap-2">
           <button
             onClick={() => downloadExport('csv')}
-            className="px-3 py-1.5 text-xs font-medium text-secondary bg-elevated border border-muted rounded-lg hover:text-primary transition-colors"
+            className="btn btn-secondary"
           >
             ↓ CSV
           </button>
           <button
             onClick={() => downloadExport('excel')}
-            className="px-3 py-1.5 text-xs font-medium text-secondary bg-elevated border border-muted rounded-lg hover:text-primary transition-colors"
+            className="btn btn-secondary"
           >
             ↓ Excel
           </button>
           <button
             onClick={() => setShowNewTrade(true)}
-            className="px-4 py-1.5 text-sm font-medium text-base bg-brand-strong hover:bg-brand rounded-lg transition-colors"
+            className="btn btn-primary"
           >
-            + Nuevo
+            <PlusIcon />
+            Nuevo trade
           </button>
         </div>
       </div>
 
       {/* Panel de filtros */}
-      <div className="bg-surface border border-subtle rounded-xl px-4 py-3 mb-4 flex flex-wrap gap-2 items-center">
-        {/* Cuenta */}
-        <select
-          value={filters.account_id ?? ''}
-          onChange={(e) => setFilter('account_id', e.target.value ? Number(e.target.value) : undefined)}
-          className={selectCls}
-        >
-          <option value="">Todas las cuentas</option>
-          {accounts.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
-        </select>
+      <div className="flex items-center justify-between bg-surface border border-subtle rounded-xl px-4 py-3 mb-4">
+        <div className="flex flex-wrap gap-2 items-center">
+          {/* Cuenta */}
+          <select
+            value={filters.account_id ?? ''}
+            onChange={(e) => setFilter('account_id', e.target.value ? Number(e.target.value) : undefined)}
+            className={selectCls}
+          >
+            <option value="">Todas las cuentas</option>
+            {accounts.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
+          </select>
 
-        {/* Activo */}
-        <select
-          value={filters.asset_id ?? ''}
-          onChange={(e) => setFilter('asset_id', e.target.value ? Number(e.target.value) : undefined)}
-          className={selectCls}
-        >
-          <option value="">Todos los activos</option>
-          {assets.map((a) => <option key={a.id} value={a.id}>{a.symbol}</option>)}
-        </select>
+          {/* Activo */}
+          <select
+            value={filters.asset_id ?? ''}
+            onChange={(e) => setFilter('asset_id', e.target.value ? Number(e.target.value) : undefined)}
+            className={selectCls}
+          >
+            <option value="">Todos los activos</option>
+            {assets.map((a) => <option key={a.id} value={a.id}>{a.symbol}</option>)}
+          </select>
 
-        {/* Estrategia */}
-        <select
-          value={filters.strategy_id ?? ''}
-          onChange={(e) => setFilter('strategy_id', e.target.value ? Number(e.target.value) : undefined)}
-          className={selectCls}
-        >
-          <option value="">Todas las estrategias</option>
-          {strategies.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-        </select>
+          {/* Estrategia */}
+          <select
+            value={filters.strategy_id ?? ''}
+            onChange={(e) => setFilter('strategy_id', e.target.value ? Number(e.target.value) : undefined)}
+            className={selectCls}
+          >
+            <option value="">Todas las estrategias</option>
+            {strategies.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+          </select>
 
-        {/* Dirección */}
-        <select
-          value={filters.direction ?? ''}
-          onChange={(e) => setFilter('direction', e.target.value as TradeDirection | '')}
-          className={selectCls}
-        >
-          <option value="">Long / Short</option>
-          <option value="long">Long</option>
-          <option value="short">Short</option>
-        </select>
+          {/* Dirección */}
+          <select
+            value={filters.direction ?? ''}
+            onChange={(e) => setFilter('direction', e.target.value as TradeDirection | '')}
+            className={selectCls}
+          >
+            <option value="">Long / Short</option>
+            <option value="long">Long</option>
+            <option value="short">Short</option>
+          </select>
 
-        {/* Estado */}
-        <select
-          value={filters.status ?? ''}
-          onChange={(e) => setFilter('status', e.target.value as TradeStatus | '')}
-          className={selectCls}
-        >
-          <option value="">Todos los estados</option>
-          <option value="open">Abierto</option>
-          <option value="closed">Cerrado</option>
-        </select>
+          {/* Estado */}
+          <select
+            value={filters.status ?? ''}
+            onChange={(e) => setFilter('status', e.target.value as TradeStatus | '')}
+            className={selectCls}
+          >
+            <option value="">Todos los estados</option>
+            <option value="open">Abierto</option>
+            <option value="closed">Cerrado</option>
+          </select>
 
-        {/* Período */}
-        <select
-          value={filters.period ?? ''}
-          onChange={(e) => setFilter('period', e.target.value as Period | '')}
-          className={selectCls}
-        >
-          {PERIODS.map((p) => <option key={p.value} value={p.value}>{p.label}</option>)}
-        </select>
-
+          {/* Período */}
+          <select
+            value={filters.period ?? ''}
+            onChange={(e) => setFilter('period', e.target.value as Period | '')}
+            className={selectCls}
+          >
+            {PERIODS.map((p) => <option key={p.value} value={p.value}>{p.label}</option>)}
+          </select>
+        </div>
         <button
           onClick={resetFilters}
-          className="text-xs text-dimmed hover:text-secondary transition-colors ml-auto"
+          className="btn btn-secondary"
         >
           Limpiar filtros
         </button>
@@ -374,13 +378,13 @@ export function TradesPage() {
         ) : trades.length === 0 ? (
           <div className="flex flex-col items-center py-16 text-center">
             <p className="text-secondary text-sm mb-4">No se encontraron operaciones con los filtros actuales</p>
-            <button onClick={resetFilters} className="text-xs text-brand hover:underline">Limpiar filtros</button>
+            <button onClick={resetFilters} className="btn btn-primary">Limpiar filtros</button>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm min-w-max">
+          <div className="container-table">
+            <table className="">
               <thead>
-                <tr className="bg-elevated border-b border-subtle">
+                <tr className="">
                   <SortTh label="Fecha entrada" col="entry_date" />
                   <SortTh label="Activo" col="asset_symbol" />
                   <SortTh label="Dir." col="direction" />
@@ -389,8 +393,8 @@ export function TradesPage() {
                   <SortTh label="Salida" col="exit_price" />
                   <SortTh label="PnL" col="pnl" />
                   <SortTh label="Estado" col="status" />
-                  <th className="px-3 py-3 text-left text-xs font-semibold text-tertiary uppercase tracking-wide whitespace-nowrap">Estrategia</th>
-                  <th className="px-3 py-3 text-right text-xs font-semibold text-tertiary uppercase tracking-wide">Acciones</th>
+                  <th className="">Estrategia</th>
+                  <th className="min">Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -400,19 +404,22 @@ export function TradesPage() {
                     <tr
                       key={trade.id}
                       style={{ animationDelay: `${i * 40}ms` }}
-                      className="row-enter border-b border-subtle last:border-0 hover:bg-elevated/40 transition-colors"
+                      className="row-enter"
                     >
-                      <td className="px-3 py-2.5 text-secondary whitespace-nowrap text-xs">{formatDate(trade.entry_date)}</td>
-                      <td className="px-3 py-2.5 font-semibold text-primary whitespace-nowrap">{trade.asset_symbol ?? `#${trade.asset_id}`}</td>
-                      <td className="px-3 py-2.5">
+                      <td className="text-slate-300">
+                        <span>{formatDate(trade.entry_date).date}</span>
+                        <span className="text-slate-400 ml-1">{formatDate(trade.entry_date).hour}</span>
+                      </td>
+                      <td className="">{trade.asset_symbol ?? `#${trade.asset_id}`}</td>
+                      <td className="">
                         <span className={['text-xs font-semibold', trade.direction === 'long' ? 'text-profit' : 'text-loss'].join(' ')}>
                           {trade.direction === 'long' ? '▲ Long' : '▼ Short'}
                         </span>
                       </td>
-                      <td className="px-3 py-2.5 text-secondary text-right">{trade.position_size}</td>
-                      <td className="px-3 py-2.5 text-secondary text-right tabular-nums">{formatNum(trade.entry_price, 5)}</td>
-                      <td className="px-3 py-2.5 text-secondary text-right tabular-nums">{formatNum(trade.exit_price, 5)}</td>
-                      <td className="px-3 py-2.5 text-right tabular-nums font-semibold">
+                      <td >{trade.position_size}</td>
+                      <td className=" tabular-nums">{formatNum(trade.entry_price)}</td>
+                      <td className=" tabular-nums">{formatNum(trade.exit_price)}</td>
+                      <td className="`text-right tabular-nums` font-semibold">
                         {trade.pnl != null ? (
                           <span className={pnlPos ? 'text-profit' : 'text-loss'}>
                             {pnlPos ? '+' : ''}{formatNum(trade.pnl)}
@@ -434,15 +441,15 @@ export function TradesPage() {
                         <div className="flex items-center justify-end gap-1.5">
                           <Link
                             to={`/trades/${trade.id}`}
-                            className="text-xs text-secondary hover:text-primary bg-elevated border border-muted rounded-md px-2 py-0.5 transition-colors"
+                            className="btn-act"
                           >
-                            Ver
+                            <EyeIcon />
                           </Link>
                           <button
                             onClick={() => setEditTarget(trade)}
-                            className="text-xs text-secondary hover:text-primary bg-elevated border border-muted rounded-md px-2 py-0.5 transition-colors"
+                            className="btn-act edit"
                           >
-                            Editar
+                            <EditIcon />
                           </button>
                           {trade.status === 'open' && (
                             <button
@@ -454,9 +461,9 @@ export function TradesPage() {
                           )}
                           <button
                             onClick={() => setDeleteTarget(trade)}
-                            className="text-xs text-danger hover:opacity-80 bg-loss-bg border border-loss/20 rounded-md px-2 py-0.5 transition-opacity"
+                            className="btn-act delete"
                           >
-                            ✕
+                            <TrashIcon />
                           </button>
                         </div>
                       </td>
@@ -486,7 +493,7 @@ export function TradesPage() {
             <button
               disabled={currentPage <= 1}
               onClick={() => setFilters((p) => ({ ...p, page: p.page! - 1 }))}
-              className="px-3 py-1 text-xs text-secondary bg-elevated border border-muted rounded-lg disabled:opacity-40 hover:text-primary transition-colors"
+              className="btn btn-secondary"
             >
               ‹ Anterior
             </button>
@@ -496,7 +503,7 @@ export function TradesPage() {
             <button
               disabled={currentPage >= totalPages}
               onClick={() => setFilters((p) => ({ ...p, page: p.page! + 1 }))}
-              className="px-3 py-1 text-xs text-secondary bg-elevated border border-muted rounded-lg disabled:opacity-40 hover:text-primary transition-colors"
+              className="btn btn-secondary"
             >
               Siguiente ›
             </button>
@@ -538,7 +545,7 @@ export function TradesPage() {
       {/* Modal confirmar borrado */}
       {deleteTarget && (
         <ConfirmDialog
-          label={`¿Eliminar el trade de ${deleteTarget.asset_symbol ?? `activo #${deleteTarget.asset_id}`} del ${formatDate(deleteTarget.entry_date)}? Esta acción no se puede deshacer.`}
+          label={`¿Eliminar el trade de ${deleteTarget.asset_symbol ?? `activo #${deleteTarget.asset_id}`} del ${formatDate(deleteTarget.entry_date).date} ${formatDate(deleteTarget.entry_date).hour}? Esta acción no se puede deshacer.`}
           onConfirm={handleDelete}
           onCancel={() => setDeleteTarget(null)}
         />

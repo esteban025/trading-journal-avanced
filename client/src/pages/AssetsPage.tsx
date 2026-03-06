@@ -4,7 +4,7 @@ import { assetsService } from '../services/assetsService';
 import { AssetForm } from '../components/AssetForm';
 import { useToast } from '../context/AppContext';
 import { usePageAnimation } from '../hooks/usePageAnimation';
-import { ChartBarIcon, EditIcon, TrashIcon } from '../assets/icons/icons-react';
+import { ChartBarIcon, EditIcon, PlusIcon, TrashIcon } from '../assets/icons/icons-react';
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -54,7 +54,7 @@ function ConfirmDialog({ assetName, onConfirm, onCancel }: ConfirmDialogProps) {
           ¿Estás seguro de que deseas eliminar <span className="text-primary font-medium">{assetName}</span>?
           Esta acción no se puede deshacer.
         </p>
-        <div className="flex gap-3">
+        <div className="flex items-center gap-3">
           <button onClick={onCancel} className="btn btn-secondary w-full">Cancelar</button>
           <button onClick={onConfirm} className="btn btn-primary w-full">Eliminar</button>
         </div>
@@ -149,7 +149,10 @@ export function AssetsPage() {
           <h1 className="text-2xl font-bold text-primary mb-0.5">Activos</h1>
           <p className="text-secondary text-sm">Catálogo de instrumentos operados</p>
         </div>
-        <button onClick={openNew} className="btn btn-primary">+ Nuevo activo</button>
+        <button onClick={openNew} className="btn btn-primary">
+          <PlusIcon />
+          Nuevo activo
+        </button>
       </div>
 
       {/* Error persistente */}
@@ -193,7 +196,7 @@ export function AssetsPage() {
                 <tr
                   key={asset.id}
                   style={{ animationDelay: `${i * 40}ms` }}
-                  className=""
+                  className="row-enter"
                 >
                   <td className=" font-semibold text-primary">{asset.symbol}</td>
                   <td className=" text-secondary">{asset.name ?? <span className="text-dimmed">—</span>}</td>

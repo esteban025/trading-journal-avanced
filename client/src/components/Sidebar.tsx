@@ -3,6 +3,7 @@ import { useAppContext } from '../context/AppContext';
 import { useEffect, useState } from 'react';
 import { accountsService } from '../services/accountsService';
 import type { Account } from '../types';
+
 import {
   ChartBarIcon,
   ArrowsRightLeftIcon,
@@ -11,6 +12,7 @@ import {
   Bars3BottomLeftIcon,
   PresentationChartBarIcon,
   PlusIcon,
+  Logo,
 } from '../assets/icons/icons-react';
 
 interface NavItem {
@@ -73,7 +75,9 @@ export function Sidebar() {
       {/* Brand */}
       <div className="px-6 py-5 border-b border-subtle">
         <div className="flex items-center gap-2">
-          <span className="text-brand text-4xl font-bold">◈</span>
+          <span className="text-brand text-4xl font-bold">
+            <Logo className="size-10" />
+          </span>
           <div>
             <p className="text-primary font-semibold text-lg leading-tight">Trading Journal</p>
             <p className="text-tertiary text-sm">Portfolio tracker</p>

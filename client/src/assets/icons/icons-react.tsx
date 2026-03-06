@@ -34,6 +34,12 @@ export const EyeIcon = ({ className }: { className?: string }) => (
   </svg>
 )
 
+export const Logo = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none">
+    <path d="M9.28125 7.65476L0 17L9.42188 10.244L10.6172 11.5238L5.97656 16.2262L15.2109 9.70833L17.5781 12.0893L14.5078 15.2738L22.8984 9.29167L22.9453 10.4821L24 7.17857L21.4688 7L22.1484 7.53571L18.2109 11.4345L15.0703 7L11.3906 10.6905L9.28125 7.65476Z" fill="#0ADA95" />
+  </svg>
+)
+
 export const XMarkIcon = ({ className, strokeWidth = 2 }: IconProps & { strokeWidth?: number }) => (
   <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={strokeWidth}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />

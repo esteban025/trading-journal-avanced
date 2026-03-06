@@ -129,7 +129,7 @@ export function Sidebar() {
         <div className="pt-3">
           <button
             onClick={() => navigate('/trades/new')}
-            className="btn-cta w-full flex items-center justify-center gap-2"
+            className="btn btn-primary w-full"
           >
             <PlusIcon className="w-4 h-4" />
             Nuevo Trade

@@ -138,14 +138,14 @@ export function AccountForm({ account, onClose, onSaved }: AccountFormProps) {
             <button
               type="button"
               onClick={onClose}
-              className="btn-cancel"
+              className="btn btn-secondary w-full"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="btn-primary"
+              className="btn btn-primary w-full"
             >
               {loading ? 'Guardando…' : isEdit ? 'Guardar cambios' : 'Crear cuenta'}
             </button>

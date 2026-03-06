@@ -5,7 +5,7 @@ import { useAppContext, useToast } from '../context/AppContext';
 import { usePageAnimation } from '../hooks/usePageAnimation';
 import { useListAnimation } from '../hooks/useListAnimation';
 import type { Account } from '../types';
-import { PencilSquareIcon, TrashIcon, BanknotesIcon, PlusIcon } from '../assets/icons/icons-react';
+import { TrashIcon, BanknotesIcon, PlusIcon, EditIcon } from '../assets/icons/icons-react';
 
 function formatCurrency(value: number, currency: string) {
   return new Intl.NumberFormat('en-US', {
@@ -48,7 +48,7 @@ function AccountCard({
             'w-2 h-2 rounded-full shrink-0 mt-1',
             isActive ? 'bg-brand' : 'bg-dimmed',
           ].join(' ')} />
-          <div className="min-w-0">
+          <div className="min-w-0 flex items-center gap-2">
             <h3 className="text-primary font-semibold text-sm truncate">{account.name}</h3>
             <span className="text-tertiary text-xs">{account.currency}</span>
           </div>
@@ -58,16 +58,16 @@ function AccountCard({
           <button
             onClick={onEdit}
             title="Editar"
-            className="btn-icon"
+            className="btn-act edit"
           >
-            <PencilSquareIcon className="w-4 h-4" />
+            <EditIcon />
           </button>
           <button
             onClick={onDelete}
             title="Eliminar"
-            className="btn-icon-danger"
+            className="btn-act delete"
           >
-            <TrashIcon className="w-4 h-4" />
+            <TrashIcon />
           </button>
         </div>
       </div>
@@ -76,13 +76,13 @@ function AccountCard({
       <div className="grid grid-cols-2 gap-3">
         <div className="bg-elevated rounded-lg px-3 py-2">
           <p className="text-tertiary text-xs mb-0.5">Balance inicial</p>
-          <p className="text-primary text-sm font-medium">
+          <p className="text-primary font-medium">
             {formatCurrency(account.initial_balance, account.currency)}
           </p>
         </div>
         <div className="bg-elevated rounded-lg px-3 py-2">
           <p className="text-tertiary text-xs mb-0.5">Balance actual</p>
-          <p className="text-primary text-sm font-medium">
+          <p className="text-primary font-medium">
             {formatCurrency(account.current_balance, account.currency)}
           </p>
         </div>
@@ -90,18 +90,18 @@ function AccountCard({
 
       {/* PnL + stats */}
       <div className="flex items-center justify-between">
-        <div>
+        <div className="flex flex-col items-center justify-center">
           <p className="text-tertiary text-xs mb-0.5">PnL neto</p>
           <p className={['text-sm font-semibold', pnlPositive ? 'text-profit' : 'text-loss'].join(' ')}>
             {pnlPositive ? '+' : ''}{formatCurrency(account.total_pnl, account.currency)}
           </p>
         </div>
-        <div className="text-right">
+        <div className="flex flex-col items-center justify-center">
           <p className="text-tertiary text-xs mb-0.5">Trades cerrados</p>
           <p className="text-primary text-sm font-medium">{account.total_trades}</p>
         </div>
         {winRate !== null && (
-          <div className="text-right">
+          <div className="flex flex-col items-center justify-center">
             <p className="text-tertiary text-xs mb-0.5">Win rate</p>
             <p className={['text-sm font-medium', winRate >= 50 ? 'text-profit' : 'text-loss'].join(' ')}>
               {winRate}%
@@ -114,7 +114,7 @@ function AccountCard({
       <button
         onClick={onSetActive}
         className={[
-          'w-full py-1.5 text-xs font-medium rounded-lg border transition-colors',
+          'w-full py-2 text-xs font-medium rounded-lg border transition-colors',
           isActive
             ? 'border-brand/40 text-brand bg-brand-subtle cursor-default'
             : 'border-muted text-secondary hover:border-brand hover:text-brand hover:bg-brand-subtle',
@@ -139,14 +139,14 @@ function ConfirmDialog({
   return (
     <div className="modal-backdrop">
       <div className="confirm-box">
-        <h2 className="text-primary font-semibold text-base mb-2">Eliminar cuenta</h2>
+        <h2 className="text-primary font-semibold mb-2">Eliminar cuenta</h2>
         <p className="text-secondary text-sm mb-5">
           ¿Estás seguro de que deseas eliminar <span className="text-primary font-medium">"{name}"</span>?
           Esta acción no se puede deshacer.
         </p>
         <div className="flex gap-3">
-          <button onClick={onCancel} className="btn-cancel">Cancelar</button>
-          <button onClick={onConfirm} className="btn-danger">Eliminar</button>
+          <button onClick={onCancel} className="btn btn-secondary w-full">Cancelar</button>
+          <button onClick={onConfirm} className="btn btn-primary w-full">Eliminar</button>
         </div>
       </div>
     </div>
@@ -162,7 +162,7 @@ function EmptyState({ onNew }: { onNew: () => void }) {
       </div>
       <p className="text-secondary font-medium mb-1">Sin cuentas todavía</p>
       <p className="text-tertiary text-sm mb-5">Crea tu primera cuenta de trading para empezar</p>
-      <button onClick={onNew} className="btn-cta">+ Nueva cuenta</button>
+      <button onClick={onNew} className="btn btn-primary">+ Nueva cuenta</button>
     </div>
   );
 }
@@ -245,8 +245,8 @@ export function AccountsPage() {
             {accounts.length} cuenta{accounts.length !== 1 ? 's' : ''} registrada{accounts.length !== 1 ? 's' : ''}
           </p>
         </div>
-        <button onClick={openNew} className="btn-cta flex items-center gap-2">
-          <PlusIcon className="w-4 h-4" />
+        <button onClick={openNew} className="btn btn-primary">
+          <PlusIcon />
           Nueva cuenta
         </button>
       </div>

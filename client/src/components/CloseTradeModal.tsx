@@ -105,21 +105,19 @@ export function CloseTradeModal({ trade, onClose, onClosed }: CloseTradeModalPro
     }
   }
 
-  const inputCls =
-    'w-full bg-elevated border border-muted text-primary text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-brand placeholder:text-dimmed';
-  const labelCls =
-    'block text-xs font-medium text-tertiary uppercase tracking-wide mb-1';
+  const inputCls = 'form-input';
+  const labelCls = 'form-label';
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+      className="modal-backdrop"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="bg-surface border border-subtle rounded-xl shadow-2xl w-full max-w-md mx-4">
+      <div className="modal-box max-w-md">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-subtle">
+        <div className="modal-header">
           <div>
             <h2 className="text-primary font-semibold text-lg">Cerrar trade</h2>
             <p className="text-tertiary text-xs mt-0.5">
@@ -130,7 +128,7 @@ export function CloseTradeModal({ trade, onClose, onClosed }: CloseTradeModalPro
               · {trade.position_size} lotes
             </p>
           </div>
-          <button onClick={onClose} className="text-tertiary hover:text-primary transition-colors">
+          <button onClick={onClose} className="modal-close-btn">
             <XMarkIcon className="w-5 h-5" />
           </button>
         </div>
@@ -234,24 +232,24 @@ export function CloseTradeModal({ trade, onClose, onClosed }: CloseTradeModalPro
 
           {/* Error */}
           {error && (
-            <p className="text-danger text-sm bg-loss-bg border border-loss/20 rounded-lg px-3 py-2">
+            <p className="form-error">
               {error}
             </p>
           )}
 
           {/* Acciones */}
-          <div className="flex gap-3 pt-1">
+          <div className="form-actions">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 text-sm font-medium text-secondary bg-elevated border border-muted rounded-lg hover:text-primary transition-colors"
+              className="btn-cancel"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={submitting}
-              className="flex-1 px-4 py-2 text-sm font-medium text-base bg-brand-strong hover:bg-brand rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn-primary"
             >
               {submitting ? 'Cerrando...' : 'Confirmar cierre'}
             </button>

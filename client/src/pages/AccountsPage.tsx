@@ -57,14 +57,14 @@ function AccountCard({
           <button
             onClick={onEdit}
             title="Editar"
-            className="p-1.5 text-tertiary hover:text-primary hover:bg-elevated rounded-md transition-colors"
+            className="btn-icon"
           >
             <PencilSquareIcon className="w-4 h-4" />
           </button>
           <button
             onClick={onDelete}
             title="Eliminar"
-            className="p-1.5 text-tertiary hover:text-danger hover:bg-loss-bg rounded-md transition-colors"
+            className="btn-icon-danger"
           >
             <TrashIcon className="w-4 h-4" />
           </button>
@@ -136,26 +136,16 @@ function ConfirmDialog({
   onCancel: () => void;
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="bg-surface border border-subtle rounded-xl shadow-2xl w-full max-w-sm mx-4 p-6">
+    <div className="modal-backdrop">
+      <div className="confirm-box">
         <h2 className="text-primary font-semibold text-base mb-2">Eliminar cuenta</h2>
         <p className="text-secondary text-sm mb-5">
           ¿Estás seguro de que deseas eliminar <span className="text-primary font-medium">"{name}"</span>?
           Esta acción no se puede deshacer.
         </p>
         <div className="flex gap-3">
-          <button
-            onClick={onCancel}
-            className="flex-1 px-4 py-2 text-sm font-medium rounded-lg border border-muted text-secondary hover:text-primary hover:bg-elevated transition-colors"
-          >
-            Cancelar
-          </button>
-          <button
-            onClick={onConfirm}
-            className="flex-1 px-4 py-2 text-sm font-medium rounded-lg bg-danger-strong hover:bg-danger text-white transition-colors"
-          >
-            Eliminar
-          </button>
+          <button onClick={onCancel} className="btn-cancel">Cancelar</button>
+          <button onClick={onConfirm} className="btn-danger">Eliminar</button>
         </div>
       </div>
     </div>
@@ -171,12 +161,7 @@ function EmptyState({ onNew }: { onNew: () => void }) {
       </div>
       <p className="text-secondary font-medium mb-1">Sin cuentas todavía</p>
       <p className="text-tertiary text-sm mb-5">Crea tu primera cuenta de trading para empezar</p>
-      <button
-        onClick={onNew}
-        className="px-4 py-2 text-sm font-medium rounded-lg bg-brand-strong hover:bg-brand text-base transition-colors"
-      >
-        + Nueva cuenta
-      </button>
+      <button onClick={onNew} className="btn-cta">+ Nueva cuenta</button>
     </div>
   );
 }
@@ -258,10 +243,7 @@ export function AccountsPage() {
             {accounts.length} cuenta{accounts.length !== 1 ? 's' : ''} registrada{accounts.length !== 1 ? 's' : ''}
           </p>
         </div>
-        <button
-          onClick={openNew}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-brand-strong hover:bg-brand text-base transition-colors"
-        >
+        <button onClick={openNew} className="btn-cta flex items-center gap-2">
           <PlusIcon className="w-4 h-4" />
           Nueva cuenta
         </button>
@@ -277,9 +259,7 @@ export function AccountsPage() {
       )}
 
       {!loading && error && (
-        <div className="text-danger bg-loss-bg border border-danger/20 rounded-lg px-4 py-3 text-sm">
-          {error}
-        </div>
+        <div className="form-error">{error}</div>
       )}
 
       {!loading && !error && accounts.length === 0 && (

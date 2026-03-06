@@ -1,0 +1,31 @@
+/* ── Modales reutilizables ──────────────────────────────────── */
+
+/* Fondo oscuro con blur */
+.modal-backdrop {
+  @apply fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm;
+}
+
+/* Contenedor del modal (añadir max-w-* en JSX según el tamaño) */
+.modal-box {
+  @apply bg-surface border border-subtle rounded-xl shadow-2xl w-full mx-4;
+}
+
+/* Cabecera del modal */
+.modal-header {
+  @apply flex items-center justify-between px-6 py-4 border-b border-subtle;
+}
+
+/* Cuerpo del modal (formulario) */
+.modal-body {
+  @apply px-6 py-5 space-y-4;
+}
+
+/* Botón de cierre (X) */
+.modal-close-btn {
+  @apply text-tertiary hover:text-primary transition-colors;
+}
+
+/* Caja de diálogo de confirmación (tamaño fijo sm) */
+.confirm-box {
+  @apply bg-surface border border-subtle rounded-xl shadow-2xl w-full max-w-sm mx-4 p-6;
+}

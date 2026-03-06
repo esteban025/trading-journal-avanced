@@ -62,51 +62,46 @@ export function AccountForm({ account, onClose, onSaved }: AccountFormProps) {
   }
 
   return (
-    /* Backdrop */
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+      className="modal-backdrop"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="bg-surface border border-subtle rounded-xl shadow-2xl w-full max-w-md mx-4">
+      <div className="modal-box max-w-md">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-subtle">
+        <div className="modal-header">
           <h2 className="text-primary font-semibold text-lg">
             {isEdit ? 'Editar cuenta' : 'Nueva cuenta'}
           </h2>
           <button
             onClick={onClose}
-            className="text-tertiary hover:text-primary transition-colors"
+            className="modal-close-btn"
           >
             <XMarkIcon className="w-5 h-5" />
           </button>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
+        <form onSubmit={handleSubmit} className="modal-body">
           {/* Nombre */}
           <div>
-            <label className="block text-xs font-medium text-tertiary uppercase tracking-wide mb-1">
-              Nombre de la cuenta *
-            </label>
+            <label className="form-label">Nombre de la cuenta *</label>
             <input
               name="name"
               value={form.name}
               onChange={handleChange}
               placeholder="Ej: Cuenta XTB, Interactive Brokers"
-              className="w-full bg-elevated border border-muted text-primary text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-brand placeholder:text-dimmed"
+              className="form-input"
             />
           </div>
 
           {/* Moneda */}
           <div>
-            <label className="block text-xs font-medium text-tertiary uppercase tracking-wide mb-1">
-              Moneda
-            </label>
+            <label className="form-label">Moneda</label>
             <select
               name="currency"
               value={form.currency}
               onChange={handleChange}
-              className="w-full bg-elevated border border-muted text-primary text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-brand"
+              className="form-input"
             >
               {CURRENCIES.map((c) => (
                 <option key={c} value={c}>{c}</option>
@@ -116,9 +111,7 @@ export function AccountForm({ account, onClose, onSaved }: AccountFormProps) {
 
           {/* Balance inicial */}
           <div>
-            <label className="block text-xs font-medium text-tertiary uppercase tracking-wide mb-1">
-              Balance inicial *
-            </label>
+            <label className="form-label">Balance inicial *</label>
             <input
               name="initial_balance"
               type="number"
@@ -127,30 +120,30 @@ export function AccountForm({ account, onClose, onSaved }: AccountFormProps) {
               value={form.initial_balance}
               onChange={handleChange}
               placeholder="10000.00"
-              className="w-full bg-elevated border border-muted text-primary text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-brand placeholder:text-dimmed"
+              className="form-input"
             />
           </div>
 
           {/* Error */}
           {error && (
-            <p className="text-danger text-sm bg-loss-bg border border-danger/20 rounded-lg px-3 py-2">
+            <p className="form-error">
               {error}
             </p>
           )}
 
           {/* Actions */}
-          <div className="flex gap-3 pt-1">
+          <div className="form-actions">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 text-sm font-medium rounded-lg border border-muted text-secondary hover:text-primary hover:bg-elevated transition-colors"
+              className="btn-cancel"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 px-4 py-2 text-sm font-medium rounded-lg bg-brand-strong hover:bg-brand text-base transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn-primary"
             >
               {loading ? 'Guardando…' : isEdit ? 'Guardar cambios' : 'Crear cuenta'}
             </button>

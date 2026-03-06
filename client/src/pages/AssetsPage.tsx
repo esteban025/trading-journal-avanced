@@ -45,28 +45,18 @@ function ConfirmDialog({ assetName, onConfirm, onCancel }: ConfirmDialogProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+      className="modal-backdrop"
       onClick={(e) => { if (e.target === e.currentTarget) onCancel(); }}
     >
-      <div className="bg-surface border border-subtle rounded-xl shadow-2xl w-full max-w-sm mx-4 p-6">
+      <div className="confirm-box">
         <h3 className="text-primary font-semibold text-base mb-2">Eliminar activo</h3>
         <p className="text-secondary text-sm mb-5">
           ¿Estás seguro de que deseas eliminar <span className="text-primary font-medium">{assetName}</span>?
           Esta acción no se puede deshacer.
         </p>
         <div className="flex gap-3">
-          <button
-            onClick={onCancel}
-            className="flex-1 px-4 py-2 text-sm font-medium text-secondary bg-elevated border border-muted rounded-lg hover:text-primary transition-colors"
-          >
-            Cancelar
-          </button>
-          <button
-            onClick={onConfirm}
-            className="flex-1 px-4 py-2 text-sm font-medium text-base bg-danger-strong hover:opacity-90 rounded-lg transition-opacity"
-          >
-            Eliminar
-          </button>
+          <button onClick={onCancel} className="btn-cancel">Cancelar</button>
+          <button onClick={onConfirm} className="btn-danger">Eliminar</button>
         </div>
       </div>
     </div>
@@ -83,12 +73,7 @@ function EmptyState({ onNew }: { onNew: () => void }) {
       </div>
       <p className="text-primary font-medium mb-1">Sin activos registrados</p>
       <p className="text-secondary text-sm mb-5">Agrega los instrumentos que operarás</p>
-      <button
-        onClick={onNew}
-        className="px-4 py-2 text-sm font-medium text-base bg-brand-strong hover:bg-brand rounded-lg transition-colors"
-      >
-        + Nuevo activo
-      </button>
+      <button onClick={onNew} className="btn-cta">+ Nuevo activo</button>
     </div>
   );
 }
@@ -164,12 +149,7 @@ export function AssetsPage() {
           <h1 className="text-2xl font-bold text-primary mb-0.5">Activos</h1>
           <p className="text-secondary text-sm">Catálogo de instrumentos operados</p>
         </div>
-        <button
-          onClick={openNew}
-          className="px-4 py-2 text-sm font-medium text-base bg-brand-strong hover:bg-brand rounded-lg transition-colors"
-        >
-          + Nuevo activo
-        </button>
+        <button onClick={openNew} className="btn-cta">+ Nuevo activo</button>
       </div>
 
       {/* Error persistente */}
@@ -226,18 +206,8 @@ export function AssetsPage() {
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <button
-                        onClick={() => openEdit(asset)}
-                        className="text-xs text-secondary hover:text-primary bg-elevated hover:bg-overlay border border-muted rounded-md px-2.5 py-1 transition-colors"
-                      >
-                        Editar
-                      </button>
-                      <button
-                        onClick={() => { setDeleteTarget(asset); }}
-                        className="text-xs text-danger hover:opacity-80 bg-loss-bg border border-loss/20 rounded-md px-2.5 py-1 transition-opacity"
-                      >
-                        Eliminar
-                      </button>
+                      <button onClick={() => openEdit(asset)} className="btn-table-action">Editar</button>
+                      <button onClick={() => { setDeleteTarget(asset); }} className="btn-table-danger">Eliminar</button>
                     </div>
                   </td>
                 </tr>

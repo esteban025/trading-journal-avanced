@@ -1,5 +1,7 @@
 @import "tailwindcss";
 @import "./forms.css";
+@import "./buttons.css";
+@import "./modals.css";
 
 /* ============================================================
    TEMA GLOBAL — Trading Journal

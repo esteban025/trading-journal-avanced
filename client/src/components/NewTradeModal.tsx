@@ -205,21 +205,19 @@ export function NewTradeModal({ onClose, onCreated, onUpdated, trade }: NewTrade
     }
   }
 
-  const inputCls =
-    'w-full bg-elevated border border-muted text-primary text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-brand placeholder:text-dimmed';
-  const labelCls =
-    'block text-xs font-medium text-tertiary uppercase tracking-wide mb-1';
+  const inputCls = 'form-input';
+  const labelCls = 'form-label';
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+      className="modal-backdrop p-4"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="bg-surface border border-subtle rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+      <div className="modal-box max-w-lg max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-subtle sticky top-0 bg-surface z-10">
+        <div className="modal-header sticky top-0 bg-surface z-10">
           <h2 className="text-primary font-semibold text-lg">{isEdit ? 'Editar trade' : 'Nuevo trade'}</h2>
-          <button onClick={onClose} className="text-tertiary hover:text-primary transition-colors">
+          <button onClick={onClose} className="modal-close-btn">
             <XMarkIcon className="w-5 h-5" />
           </button>
         </div>
@@ -231,7 +229,7 @@ export function NewTradeModal({ onClose, onCreated, onUpdated, trade }: NewTrade
           </div>
         ) : loadError ? (
           <div className="p-6">
-            <p className="text-danger text-sm bg-loss-bg border border-loss/20 rounded-lg px-4 py-3">{loadError}</p>
+            <p className="form-error">{loadError}</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
@@ -453,24 +451,24 @@ export function NewTradeModal({ onClose, onCreated, onUpdated, trade }: NewTrade
 
             {/* Error */}
             {error && (
-              <p className="text-danger text-sm bg-loss-bg border border-loss/20 rounded-lg px-3 py-2">
+              <p className="form-error">
                 {error}
               </p>
             )}
 
             {/* Acciones */}
-            <div className="flex gap-3 pt-1">
+            <div className="form-actions">
               <button
                 type="button"
                 onClick={onClose}
-                className="flex-1 px-4 py-2 text-sm font-medium text-secondary bg-elevated border border-muted rounded-lg hover:text-primary transition-colors"
+                className="btn-cancel"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
                 disabled={submitting}
-                className="flex-1 px-4 py-2 text-sm font-medium text-base bg-brand-strong hover:bg-brand rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="btn-primary"
               >
                 {submitting ? (isEdit ? 'Guardando...' : 'Registrando...') : (isEdit ? 'Guardar cambios' : 'Registrar trade')}
               </button>

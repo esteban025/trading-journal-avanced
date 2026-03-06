@@ -25,10 +25,10 @@ function ConfirmDialog({ strategyName, onConfirm, onCancel }: ConfirmDialogProps
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+      className="modal-backdrop"
       onClick={(e) => { if (e.target === e.currentTarget) onCancel(); }}
     >
-      <div className="bg-surface border border-subtle rounded-xl shadow-2xl w-full max-w-sm mx-4 p-6">
+      <div className="confirm-box">
         <h3 className="text-primary font-semibold text-base mb-2">Eliminar estrategia</h3>
         <p className="text-secondary text-sm mb-5">
           ¿Estás seguro de que deseas eliminar{' '}
@@ -36,18 +36,8 @@ function ConfirmDialog({ strategyName, onConfirm, onCancel }: ConfirmDialogProps
           Esta acción no se puede deshacer.
         </p>
         <div className="flex gap-3">
-          <button
-            onClick={onCancel}
-            className="flex-1 px-4 py-2 text-sm font-medium text-secondary bg-elevated border border-muted rounded-lg hover:text-primary transition-colors"
-          >
-            Cancelar
-          </button>
-          <button
-            onClick={onConfirm}
-            className="flex-1 px-4 py-2 text-sm font-medium text-base bg-danger-strong hover:opacity-90 rounded-lg transition-opacity"
-          >
-            Eliminar
-          </button>
+          <button onClick={onCancel} className="btn-cancel">Cancelar</button>
+          <button onClick={onConfirm} className="btn-danger">Eliminar</button>
         </div>
       </div>
     </div>
@@ -66,12 +56,7 @@ function EmptyState({ onNew }: { onNew: () => void }) {
       <p className="text-secondary text-sm mb-5">
         Define las estrategias que utilizas en tus operaciones
       </p>
-      <button
-        onClick={onNew}
-        className="px-4 py-2 text-sm font-medium text-base bg-brand-strong hover:bg-brand rounded-lg transition-colors"
-      >
-        + Nueva estrategia
-      </button>
+      <button onClick={onNew} className="btn-cta">+ Nueva estrategia</button>
     </div>
   );
 }
@@ -149,19 +134,12 @@ export function StrategiesPage() {
             Catálogo de estrategias de trading
           </p>
         </div>
-        <button
-          onClick={openNew}
-          className="px-4 py-2 text-sm font-medium text-base bg-brand-strong hover:bg-brand rounded-lg transition-colors"
-        >
-          + Nueva estrategia
-        </button>
+        <button onClick={openNew} className="btn-cta">+ Nueva estrategia</button>
       </div>
 
       {/* Error de carga */}
       {error && (
-        <div className="text-danger text-sm bg-loss-bg border border-loss/20 rounded-lg px-4 py-3 mb-4">
-          {error}
-        </div>
+        <div className="form-error mb-4">{error}</div>
       )}
 
       {/* Skeleton */}
@@ -214,21 +192,14 @@ export function StrategiesPage() {
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <button
-                        onClick={() => openEdit(strategy)}
-                        className="text-xs text-secondary hover:text-primary bg-elevated hover:bg-overlay border border-muted rounded-md px-2.5 py-1 transition-colors"
-                      >
-                        Editar
-                      </button>
+                      <button onClick={() => openEdit(strategy)} className="btn-table-action">Editar</button>
                       <button
                         onClick={() => {
                           setDeleteError('');
                           setDeleteTarget(strategy);
                         }}
-                        className="text-xs text-danger hover:opacity-80 bg-loss-bg border border-loss/20 rounded-md px-2.5 py-1 transition-opacity"
-                      >
-                        Eliminar
-                      </button>
+                        className="btn-table-danger"
+                      >Eliminar</button>
                     </div>
                   </td>
                 </tr>

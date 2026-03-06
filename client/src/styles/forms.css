@@ -33,3 +33,22 @@ select, ::picker(select) {
   color: var(--color-primary);
   background-color: var(--color-base);
 }
+
+/* ── Clases de formulario reutilizables ─── */
+
+.form-label {
+  @apply block text-xs font-medium text-tertiary uppercase tracking-wide mb-1;
+}
+
+.form-input {
+  @apply w-full bg-elevated border border-muted text-primary text-sm rounded-lg px-3 py-2
+    focus:outline-none focus:ring-1 focus:ring-brand placeholder:text-dimmed;
+}
+
+.form-error {
+  @apply text-danger text-sm bg-loss-bg border border-danger/20 rounded-lg px-3 py-2;
+}
+
+.form-actions {
+  @apply flex gap-3 pt-1;
+}

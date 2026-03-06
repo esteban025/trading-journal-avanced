@@ -64,44 +64,42 @@ export function StrategyForm({ strategy, onClose, onSaved }: StrategyFormProps) 
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+      className="modal-backdrop"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="bg-surface border border-subtle rounded-xl shadow-2xl w-full max-w-md mx-4">
+      <div className="modal-box max-w-md">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-subtle">
+        <div className="modal-header">
           <h2 className="text-primary font-semibold text-lg">
             {isEdit ? 'Editar estrategia' : 'Nueva estrategia'}
           </h2>
           <button
             onClick={onClose}
-            className="text-tertiary hover:text-primary transition-colors"
+            className="modal-close-btn"
           >
             <XMarkIcon className="w-5 h-5" />
           </button>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
+        <form onSubmit={handleSubmit} className="modal-body">
           {/* Nombre */}
           <div>
-            <label className="block text-xs font-medium text-tertiary uppercase tracking-wide mb-1">
-              Nombre *
-            </label>
+            <label className="form-label">Nombre *</label>
             <input
               name="name"
               value={form.name}
               onChange={handleChange}
               placeholder="Ej: Breakout, Scalping, SMC"
-              className="w-full bg-elevated border border-muted text-primary text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-brand placeholder:text-dimmed"
+              className="form-input"
             />
           </div>
 
           {/* Descripción */}
           <div>
-            <label className="block text-xs font-medium text-tertiary uppercase tracking-wide mb-1">
+            <label className="form-label">
               Descripción{' '}
               <span className="text-dimmed normal-case">(opcional)</span>
             </label>
@@ -111,30 +109,30 @@ export function StrategyForm({ strategy, onClose, onSaved }: StrategyFormProps) 
               onChange={handleChange}
               placeholder="Describe brevemente la lógica de entrada y salida..."
               rows={4}
-              className="w-full bg-elevated border border-muted text-primary text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-brand placeholder:text-dimmed resize-none"
+              className="form-input resize-none"
             />
           </div>
 
           {/* Error */}
           {error && (
-            <p className="text-danger text-sm bg-loss-bg border border-loss/20 rounded-lg px-3 py-2">
+            <p className="form-error">
               {error}
             </p>
           )}
 
           {/* Acciones */}
-          <div className="flex gap-3 pt-1">
+          <div className="form-actions">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 text-sm font-medium text-secondary bg-elevated border border-muted rounded-lg hover:text-primary hover:border-subtle transition-colors"
+              className="btn-cancel"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 px-4 py-2 text-sm font-medium text-base bg-brand-strong hover:bg-brand rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn-primary"
             >
               {loading
                 ? 'Guardando...'

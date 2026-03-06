@@ -49,7 +49,7 @@ function ConfirmDialog({ assetName, onConfirm, onCancel }: ConfirmDialogProps) {
       onClick={(e) => { if (e.target === e.currentTarget) onCancel(); }}
     >
       <div className="confirm-box">
-        <h3 className="text-primary font-semibold text-base mb-2">Eliminar activo</h3>
+        <h3 className="text-primary font-semibold mb-2">Eliminar activo</h3>
         <p className="text-secondary text-sm mb-5">
           ¿Estás seguro de que deseas eliminar <span className="text-primary font-medium">{assetName}</span>?
           Esta acción no se puede deshacer.
@@ -177,15 +177,15 @@ export function AssetsPage() {
 
       {/* Tabla */}
       {!loading && !error && assets.length > 0 && (
-        <div className="bg-surface border border-subtle rounded-xl overflow-hidden">
-          <table className="w-full text-sm">
+        <div className="container-table">
+          <table>
             <thead>
-              <tr className="bg-elevated border-b border-subtle">
-                <th className="px-4 py-3 text-left text-xs font-semibold text-tertiary uppercase tracking-wide">Símbolo</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-tertiary uppercase tracking-wide">Nombre</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-tertiary uppercase tracking-wide">Tipo</th>
-                <th className="px-4 py-3 text-right text-xs font-semibold text-tertiary uppercase tracking-wide">Pip Value</th>
-                <th className="px-4 py-3 text-right text-xs font-semibold text-tertiary uppercase tracking-wide">Acciones</th>
+              <tr>
+                <th>Símbolo</th>
+                <th>Nombre</th>
+                <th>Tipo</th>
+                <th>Pip Value</th>
+                <th className="min">Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -193,22 +193,22 @@ export function AssetsPage() {
                 <tr
                   key={asset.id}
                   style={{ animationDelay: `${i * 40}ms` }}
-                  className="row-enter border-b border-subtle last:border-0 hover:bg-elevated/50 transition-colors"
+                  className=""
                 >
-                  <td className="px-4 py-3 font-semibold text-primary tracking-wide">{asset.symbol}</td>
-                  <td className="px-4 py-3 text-secondary">{asset.name ?? <span className="text-dimmed">—</span>}</td>
-                  <td className="px-4 py-3">
+                  <td className=" font-semibold text-primary">{asset.symbol}</td>
+                  <td className=" text-secondary">{asset.name ?? <span className="text-dimmed">—</span>}</td>
+                  <td className="flex justify-center">
                     <span className={['text-xs font-medium px-2.5 py-1 rounded-full border', TYPE_COLORS[asset.type]].join(' ')}>
                       {TYPE_LABELS[asset.type]}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-right text-secondary">
+                  <td className=" text-center text-secondary">
                     {asset.pip_value != null ? asset.pip_value : <span className="text-dimmed">—</span>}
                   </td>
-                  <td className="px-4 py-3 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <button onClick={() => openEdit(asset)} className="btn-table-action">Editar</button>
-                      <button onClick={() => { setDeleteTarget(asset); }} className="btn-table-danger">Eliminar</button>
+                  <td>
+                    <div className="actions">
+                      <button onClick={() => openEdit(asset)} className="btn-act edit">Editar</button>
+                      <button onClick={() => { setDeleteTarget(asset); }} className="btn-act btn-act-delete">Eliminar</button>
                     </div>
                   </td>
                 </tr>

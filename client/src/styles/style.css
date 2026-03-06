@@ -2,6 +2,7 @@
 @import "./forms.css";
 @import "./buttons.css";
 @import "./modals.css";
+@import "./tables.css";
 
 /* ============================================================
    TEMA GLOBAL — Trading Journal
@@ -9,44 +10,47 @@
    Usar con: bg-base, text-primary, border-subtle, etc.
    ============================================================ */
 
-@theme {
-  /* --- Fondos --- */
-  --color-base:     var(--color-slate-950); /* slate-950 — fondo principal de la app       */
-  --color-surface:  var(--color-slate-900); /* slate-900 — sidebar, cards, panels          */
-  --color-elevated: var(--color-slate-800); /* slate-800 — inputs, hover, filas de tabla   */
-  --color-overlay:  var(--color-slate-700); /* slate-700 — bordes de inputs con foco       */
+@layer base {
+  :root {
+    /* --- Fondos --- */
+    --color-base:     var(--color-slate-950); /* fondo principal de la app       */
+    --color-surface:  var(--color-slate-900); /* sidebar, cards, panels          */
+    --color-elevated: var(--color-slate-800); /* inputs, hover, filas de tabla   */
+    --color-overlay:  var(--color-slate-700); /* bordes de inputs con foco       */
 
-  /* --- Bordes --- */
-  --color-subtle:   var(--color-slate-700); /* slate-700 — separadores y bordes generales  */
-  --color-muted:    var(--color-slate-700); /* slate-700 — bordes más visibles             */
+    /* --- Bordes --- */
+    --color-subtle:   var(--color-slate-700); /* separadores y bordes generales  */
+    --color-muted:    var(--color-slate-700); /* bordes más visibles             */
 
-  /* --- Texto --- */
-  --color-primary:   var(--color-slate-100); /* slate-100 — títulos y texto principal      */
-  --color-secondary: var(--color-slate-400); /* slate-400 — texto secundario, nav inactivo */
-  --color-tertiary:  var(--color-slate-500); /* slate-500 — labels, placeholders           */
-  --color-dimmed:    var(--color-slate-600); /* slate-600 — texto muy tenue, footers       */
+    /* --- Texto --- */
+    --color-primary:   var(--color-slate-100); /* títulos y texto principal      */
+    --color-secondary: var(--color-slate-400); /* texto secundario, nav inactivo */
+    --color-tertiary:  var(--color-slate-500); /* labels, placeholders           */
+    --color-dimmed:    var(--color-slate-600); /* texto muy tenue, footers       */
 
-  /* --- Acento / Brand (emerald) --- */
-  --color-brand:        var(--color-emerald-400); /* emerald-400 — iconos, nav activo, highlights */
-  --color-brand-strong: var(--color-emerald-500); /* emerald-500 — botones primarios, CTAs        */
-  --color-brand-hover:  var(--color-emerald-300); /* emerald-300 — hover sobre brand              */
-  --color-brand-subtle: var(--color-emerald-950); /* emerald-950 — fondo tenue de badge activo    */
+    /* --- Acento / Brand (emerald) --- */
+    --color-brand:        var(--color-emerald-400); /* iconos, nav activo, highlights */
+    --color-brand-strong: var(--color-emerald-500); /* botones primarios, CTAs        */
+    --color-brand-hover:  var(--color-emerald-300); /* hover sobre brand              */
+    --color-brand-subtle: var(--color-emerald-950); /* fondo tenue de badge activo    */
 
-  /* --- Estado: positivo (ganancias) --- */
-  --color-profit:        var(--color-emerald-400); /* emerald-400 */
-  --color-profit-bg:     var(--color-emerald-950); /* emerald-950 */
+    /* --- Estado: positivo (ganancias) --- */
+    --color-profit:        var(--color-emerald-400);
+    --color-profit-bg:     var(--color-emerald-950);
 
-  /* --- Estado: negativo (pérdidas) --- */
-  --color-loss:          var(--color-red-400); /* red-400     */
-  --color-loss-bg:       var(--color-red-950); /* red-950     */
+    /* --- Estado: negativo (pérdidas) --- */
+    --color-loss:          var(--color-red-400);
+    --color-loss-bg:       var(--color-red-950);
 
-  /* --- Estado: neutro / abierto --- */
-  --color-neutral:       var(--color-amber-400); /* amber-400   */
-  --color-neutral-bg:    var(--color-amber-950); /* amber-950   */
+    /* --- Estado: neutro / abierto --- */
+    --color-neutral:       var(--color-amber-400);
+    --color-neutral-bg:    var(--color-amber-950);
 
-  /* --- Danger (eliminar / alertas) --- */
-  --color-danger:        var(--color-red-400); /* red-400     */
-  --color-danger-strong: var(--color-red-500); /* red-500     */
+    /* --- Danger (eliminar / alertas) --- */
+    --color-danger:        var(--color-red-400);
+    --color-danger-strong: var(--color-red-500);
+  }
+
 }
 
 /* Base global */
@@ -89,6 +93,7 @@ html {
   from { opacity: 0; transform: translateX(-20px); }
   to   { opacity: 1; transform: none; }
 }
+
 .row-enter {
   animation: rowFadeIn 0.35s ease-out both;
 }

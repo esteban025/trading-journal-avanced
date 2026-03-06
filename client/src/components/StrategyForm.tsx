@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { Strategy } from '../types';
 import { strategiesService } from '../services/strategiesService';
 import { XMarkIcon } from '../assets/icons/icons-react';
+import { useModalAnimation } from '../hooks/useModalAnimation';
 
 interface StrategyFormProps {
   strategy?: Strategy;
@@ -16,6 +17,7 @@ interface FormData {
 
 export function StrategyForm({ strategy, onClose, onSaved }: StrategyFormProps) {
   const isEdit = !!strategy;
+  const boxRef = useModalAnimation();
   const [form, setForm] = useState<FormData>({
     name: strategy?.name ?? '',
     description: strategy?.description ?? '',
@@ -69,7 +71,7 @@ export function StrategyForm({ strategy, onClose, onSaved }: StrategyFormProps) 
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="modal-box max-w-md">
+      <div ref={boxRef} className="modal-box max-w-md">
         {/* Header */}
         <div className="modal-header">
           <h2 className="text-primary font-semibold text-lg">

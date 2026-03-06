@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { Asset, AssetType } from '../types';
 import { assetsService } from '../services/assetsService';
 import { XMarkIcon } from '../assets/icons/icons-react';
+import { useModalAnimation } from '../hooks/useModalAnimation';
 
 interface AssetFormProps {
   asset?: Asset;
@@ -27,6 +28,7 @@ const ASSET_TYPES: { value: AssetType; label: string }[] = [
 
 export function AssetForm({ asset, onClose, onSaved }: AssetFormProps) {
   const isEdit = !!asset;
+  const boxRef = useModalAnimation();
   const [form, setForm] = useState<FormData>({
     symbol: asset?.symbol ?? '',
     name: asset?.name ?? '',
@@ -83,7 +85,7 @@ export function AssetForm({ asset, onClose, onSaved }: AssetFormProps) {
       className="modal-backdrop"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="modal-box max-w-md">
+      <div ref={boxRef} className="modal-box max-w-md">
         {/* Header */}
         <div className="modal-header">
           <h2 className="text-primary font-semibold text-lg">

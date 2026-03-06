@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { Account } from '../types';
 import { accountsService } from '../services/accountsService';
 import { XMarkIcon } from '../assets/icons/icons-react';
+import { useModalAnimation } from '../hooks/useModalAnimation';
 
 interface AccountFormProps {
   account?: Account;
@@ -19,6 +20,7 @@ const CURRENCIES = ['USD', 'EUR', 'GBP', 'JPY', 'CHF', 'AUD', 'CAD'];
 
 export function AccountForm({ account, onClose, onSaved }: AccountFormProps) {
   const isEdit = !!account;
+  const boxRef = useModalAnimation();
   const [form, setForm] = useState<FormData>({
     name: account?.name ?? '',
     currency: account?.currency ?? 'USD',
@@ -66,7 +68,7 @@ export function AccountForm({ account, onClose, onSaved }: AccountFormProps) {
       className="modal-backdrop"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="modal-box max-w-md">
+      <div ref={boxRef} className="modal-box max-w-md">
         {/* Header */}
         <div className="modal-header">
           <h2 className="text-primary font-semibold text-lg">

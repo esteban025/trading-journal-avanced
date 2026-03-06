@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { Trade, CloseTradePayload } from '../types';
 import { tradesService } from '../services/tradesService';
 import { XMarkIcon } from '../assets/icons/icons-react';
+import { useModalAnimation } from '../hooks/useModalAnimation';
 
 interface CloseTradeModalProps {
   trade: Trade;
@@ -40,6 +41,7 @@ function calcPnl(
 }
 
 export function CloseTradeModal({ trade, onClose, onClosed }: CloseTradeModalProps) {
+  const boxRef = useModalAnimation();
   const [form, setForm] = useState<FormData>({
     exit_price: '',
     exit_date: toLocalDatetimeValue(new Date()),
@@ -115,7 +117,7 @@ export function CloseTradeModal({ trade, onClose, onClosed }: CloseTradeModalPro
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="modal-box max-w-md">
+      <div ref={boxRef} className="modal-box max-w-md">
         {/* Header */}
         <div className="modal-header">
           <div>

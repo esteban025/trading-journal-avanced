@@ -3,6 +3,7 @@ import { AccountForm } from '../components/AccountForm';
 import { accountsService } from '../services/accountsService';
 import { useAppContext, useToast } from '../context/AppContext';
 import { usePageAnimation } from '../hooks/usePageAnimation';
+import { useListAnimation } from '../hooks/useListAnimation';
 import type { Account } from '../types';
 import { PencilSquareIcon, TrashIcon, BanknotesIcon, PlusIcon } from '../assets/icons/icons-react';
 
@@ -172,6 +173,7 @@ export function AccountsPage() {
   const toast = useToast();
   const pageRef = usePageAnimation();
   const [accounts, setAccounts] = useState<Account[]>([]);
+  const cardsRef = useListAnimation(accounts);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showForm, setShowForm] = useState(false);
@@ -267,7 +269,7 @@ export function AccountsPage() {
       )}
 
       {!loading && !error && accounts.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div ref={cardsRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {accounts.map((account) => (
             <AccountCard
               key={account.id}

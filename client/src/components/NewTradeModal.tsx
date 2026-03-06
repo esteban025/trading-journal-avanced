@@ -6,6 +6,7 @@ import { strategiesService } from '../services/strategiesService';
 import { tradesService } from '../services/tradesService';
 import { useAppContext } from '../context/AppContext';
 import { XMarkIcon } from '../assets/icons/icons-react';
+import { useModalAnimation } from '../hooks/useModalAnimation';
 
 interface NewTradeModalProps {
   onClose: () => void;
@@ -45,6 +46,7 @@ function dbDateToLocalInput(dateStr: string | null | undefined): string {
 export function NewTradeModal({ onClose, onCreated, onUpdated, trade }: NewTradeModalProps) {
   const { state } = useAppContext();
   const isEdit = trade != null;
+  const boxRef = useModalAnimation();
 
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [assets, setAssets] = useState<Asset[]>([]);
@@ -213,7 +215,7 @@ export function NewTradeModal({ onClose, onCreated, onUpdated, trade }: NewTrade
       className="modal-backdrop p-4"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="modal-box max-w-lg max-h-[90vh] overflow-y-auto">
+      <div ref={boxRef} className="modal-box max-w-lg max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="modal-header sticky top-0 bg-surface z-10">
           <h2 className="text-primary font-semibold text-lg">{isEdit ? 'Editar trade' : 'Nuevo trade'}</h2>

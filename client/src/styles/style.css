@@ -83,3 +83,12 @@ html {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+
+/* Table row entrance animation */
+@keyframes rowFadeIn {
+  from { opacity: 0; transform: translateX(-20px); }
+  to   { opacity: 1; transform: none; }
+}
+.row-enter {
+  animation: rowFadeIn 0.35s ease-out both;
+}

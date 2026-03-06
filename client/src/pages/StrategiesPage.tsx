@@ -177,10 +177,11 @@ export function StrategiesPage() {
               </tr>
             </thead>
             <tbody>
-              {strategies.map((strategy) => (
+              {strategies.map((strategy, i) => (
                 <tr
                   key={strategy.id}
-                  className="border-b border-subtle last:border-0 hover:bg-elevated/50 transition-colors"
+                  style={{ animationDelay: `${i * 40}ms` }}
+                  className="row-enter border-b border-subtle last:border-0 hover:bg-elevated/50 transition-colors"
                 >
                   <td className="px-4 py-3 font-medium text-primary whitespace-nowrap">
                     {strategy.name}

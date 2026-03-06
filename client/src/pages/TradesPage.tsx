@@ -57,7 +57,7 @@ function ConfirmDialog({ label, onConfirm, onCancel }: ConfirmDialogProps) {
       onClick={(e) => { if (e.target === e.currentTarget) onCancel(); }}
     >
       <div className="bg-surface border border-subtle rounded-xl shadow-2xl w-full max-w-sm mx-4 p-6">
-        <h3 className="text-primary font-semibold text-base mb-2">Eliminar trade</h3>
+        <h3 className="text-primary font-semibold mb-2">Eliminar trade</h3>
         <p className="text-secondary text-sm mb-5">{label}</p>
         <div className="flex gap-3">
           <button onClick={onCancel} className="flex-1 px-4 py-2 text-sm font-medium text-secondary bg-elevated border border-muted rounded-lg hover:text-primary transition-colors">
@@ -247,7 +247,7 @@ export function TradesPage() {
     );
   }
 
-  const selectCls = 'bg-elevated border border-muted text-primary text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-brand';
+  const selectCls = 'space-y-2';
 
   return (
     <div ref={pageRef} className="p-6">
@@ -394,10 +394,14 @@ export function TradesPage() {
                 </tr>
               </thead>
               <tbody>
-                {sortedTrades.map((trade) => {
+                {sortedTrades.map((trade, i) => {
                   const pnlPos = trade.pnl != null && trade.pnl >= 0;
                   return (
-                    <tr key={trade.id} className="border-b border-subtle last:border-0 hover:bg-elevated/40 transition-colors">
+                    <tr
+                      key={trade.id}
+                      style={{ animationDelay: `${i * 40}ms` }}
+                      className="row-enter border-b border-subtle last:border-0 hover:bg-elevated/40 transition-colors"
+                    >
                       <td className="px-3 py-2.5 text-secondary whitespace-nowrap text-xs">{formatDate(trade.entry_date)}</td>
                       <td className="px-3 py-2.5 font-semibold text-primary whitespace-nowrap">{trade.asset_symbol ?? `#${trade.asset_id}`}</td>
                       <td className="px-3 py-2.5">
@@ -513,7 +517,7 @@ export function TradesPage() {
         <NewTradeModal
           trade={editTarget}
           onClose={() => setEditTarget(null)}
-          onCreated={() => {}}
+          onCreated={() => { }}
           onUpdated={(updated) => {
             setEditTarget(null);
             setTrades((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));

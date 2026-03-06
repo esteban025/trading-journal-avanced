@@ -189,10 +189,11 @@ export function AssetsPage() {
               </tr>
             </thead>
             <tbody>
-              {assets.map((asset) => (
+              {assets.map((asset, i) => (
                 <tr
                   key={asset.id}
-                  className="border-b border-subtle last:border-0 hover:bg-elevated/50 transition-colors"
+                  style={{ animationDelay: `${i * 40}ms` }}
+                  className="row-enter border-b border-subtle last:border-0 hover:bg-elevated/50 transition-colors"
                 >
                   <td className="px-4 py-3 font-semibold text-primary tracking-wide">{asset.symbol}</td>
                   <td className="px-4 py-3 text-secondary">{asset.name ?? <span className="text-dimmed">—</span>}</td>

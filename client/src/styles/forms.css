@@ -1,5 +1,5 @@
 select {
-  @apply w-full bg-elevated border border-muted text-primary text-sm rounded-md px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-brand;
+  @apply bg-elevated border border-muted text-primary text-sm rounded-md px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-brand;
 
   & option {
     @apply bg-elevated/50 text-primary p-2 rounded-md cursor-pointer;

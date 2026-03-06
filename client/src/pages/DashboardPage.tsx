@@ -138,16 +138,22 @@ export function DashboardPage() {
 
   // Stagger KPI cards al terminar de cargar
   useEffect(() => {
-    if (!loading && kpiGridRef.current && kpiGridRef.current.children.length > 0) {
-      gsap.from(kpiGridRef.current.children, {
+    const grid = kpiGridRef.current;
+    if (loading || !grid || grid.children.length === 0) return;
+
+    const ctx = gsap.context(() => {
+      gsap.from(Array.from(grid.children), {
         opacity: 0,
-        y: 16,
-        duration: 0.45,
-        stagger: 0.06,
-        ease: 'power2.out',
+        y: 20,
+        scale: 0.97,
+        duration: 0.4,
+        stagger: 0.07,
+        ease: 'power3.out',
         clearProps: 'all',
       });
-    }
+    }, grid);
+
+    return () => ctx.revert();
   }, [loading]);
 
   // Cuenta activa para mostrar balance

@@ -89,7 +89,7 @@ export function Sidebar() {
         <select
           value={state.activeAccountId ?? ''}
           onChange={handleAccountChange}
-          className="space-y-2 mb-2"
+          className="space-y-2 mb-2 w-full"
         >
           <option value="">Todas las cuentas</option>
           {accounts.map((a) => (
@@ -125,7 +125,7 @@ export function Sidebar() {
         <div className="pt-3">
           <button
             onClick={() => navigate('/trades/new')}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm font-medium bg-brand-strong hover:bg-brand text-base transition-colors"
+            className="btn-cta w-full flex items-center justify-center gap-2"
           >
             <PlusIcon className="w-4 h-4" />
             Nuevo Trade

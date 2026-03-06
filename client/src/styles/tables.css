@@ -1,29 +1,58 @@
 .container-table {
-  @apply bg-surface border border-subtle rounded-xl overflow-hidden;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-subtle);
+  border-radius: 0.75rem;
+  overflow: hidden;
 
   & table {
-    @apply w-full text-sm;
+    width: 100%;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
 
     & thead {
       & tr {
-        @apply bg-elevated border-b border-subtle;
+        background-color: var(--color-elevated);
+        border-bottom: 1px solid var(--color-subtle);
       }
 
       & th {
-        @apply px-4 py-3 text-center text-xs font-semibold text-tertiary uppercase tracking-wide;
+        padding: 0.5rem .75rem;
+        text-align: center;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--color-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
       }
     }
 
     & tbody {
       & tr {
-        @apply row-enter border-b border-subtle last:border-0 hover:bg-elevated/50 transition-colors;
+        border-bottom: 1px solid var(--color-subtle);
+
+        transition-property: color, background-color, border-color;
+        transition-duration: 150ms;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+
+        animation: rowFadeIn 0.35s ease-out both;
+
+        &:last-child {
+          border-bottom: 0;
+        }
+
+        &:hover {
+          background-color: color-mix(in srgb, var(--color-elevated) 50%, transparent);
+        }
       }
 
       & td {
-        @apply px-4 py-3;
+        padding: 0.5rem 0.75rem;
 
         & .actions {
-          @apply flex justify-center items-center gap-2;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          gap: 0.5rem;
         }
       }
     }
@@ -31,5 +60,6 @@
 }
 
 table .min {
-  @apply w-[1%] whitespace-nowrap;
+  width: 1%;
+  white-space: nowrap;
 }

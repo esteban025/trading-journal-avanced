@@ -10,8 +10,7 @@
    Usar con: bg-base, text-primary, border-subtle, etc.
    ============================================================ */
 
-@layer base {
-  :root {
+@theme {
     /* --- Fondos --- */
     --color-base:     var(--color-slate-950); /* fondo principal de la app       */
     --color-surface:  var(--color-slate-900); /* sidebar, cards, panels          */
@@ -49,7 +48,6 @@
     /* --- Danger (eliminar / alertas) --- */
     --color-danger:        var(--color-red-400);
     --color-danger-strong: var(--color-red-500);
-  }
 
 }
 

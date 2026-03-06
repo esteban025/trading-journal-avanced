@@ -4,7 +4,7 @@ import { assetsService } from '../services/assetsService';
 import { AssetForm } from '../components/AssetForm';
 import { useToast } from '../context/AppContext';
 import { usePageAnimation } from '../hooks/usePageAnimation';
-import { ChartBarIcon } from '../assets/icons/icons-react';
+import { ChartBarIcon, EditIcon, TrashIcon } from '../assets/icons/icons-react';
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -55,8 +55,8 @@ function ConfirmDialog({ assetName, onConfirm, onCancel }: ConfirmDialogProps) {
           Esta acción no se puede deshacer.
         </p>
         <div className="flex gap-3">
-          <button onClick={onCancel} className="btn-cancel">Cancelar</button>
-          <button onClick={onConfirm} className="btn-danger">Eliminar</button>
+          <button onClick={onCancel} className="btn btn-secondary w-full">Cancelar</button>
+          <button onClick={onConfirm} className="btn btn-primary w-full">Eliminar</button>
         </div>
       </div>
     </div>
@@ -73,7 +73,7 @@ function EmptyState({ onNew }: { onNew: () => void }) {
       </div>
       <p className="text-primary font-medium mb-1">Sin activos registrados</p>
       <p className="text-secondary text-sm mb-5">Agrega los instrumentos que operarás</p>
-      <button onClick={onNew} className="btn-cta">+ Nuevo activo</button>
+      <button onClick={onNew} className="btn btn-primary">+ Nuevo activo</button>
     </div>
   );
 }
@@ -149,7 +149,7 @@ export function AssetsPage() {
           <h1 className="text-2xl font-bold text-primary mb-0.5">Activos</h1>
           <p className="text-secondary text-sm">Catálogo de instrumentos operados</p>
         </div>
-        <button onClick={openNew} className="btn-cta">+ Nuevo activo</button>
+        <button onClick={openNew} className="btn btn-primary">+ Nuevo activo</button>
       </div>
 
       {/* Error persistente */}
@@ -207,8 +207,12 @@ export function AssetsPage() {
                   </td>
                   <td>
                     <div className="actions">
-                      <button onClick={() => openEdit(asset)} className="btn-act edit">Editar</button>
-                      <button onClick={() => { setDeleteTarget(asset); }} className="btn-act btn-act-delete">Eliminar</button>
+                      <button onClick={() => openEdit(asset)} className="btn-act edit">
+                        <EditIcon />
+                      </button>
+                      <button onClick={() => { setDeleteTarget(asset); }} className="btn-act delete">
+                        <TrashIcon />
+                      </button>
                     </div>
                   </td>
                 </tr>

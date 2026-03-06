@@ -1,52 +1,91 @@
 /* ── Botones reutilizables ──────────────────────────────────── */
 
 /* Botón primario de submit en formularios (flex-1) */
+.btn {
+  cursor: pointer;
+  /* aplicar estilos comunes a todos los botones */
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  border: 1px solid transparent;
+  transition-property: color, background-color, border-color;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
 .btn-primary {
-  @apply flex-1 px-4 py-2 text-sm font-medium text-base bg-brand-strong hover:bg-brand
-    rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+  color: var(--color-base);
+  background-color: var(--color-brand-strong);
+
+  &:hover {
+    background-color: var(--color-brand);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 }
 
 /* Botón de cancelar / secundario en formularios (flex-1) */
-.btn-cancel {
-  @apply flex-1 px-4 py-2 text-sm font-medium rounded-lg border border-muted
-    text-secondary hover:text-primary hover:bg-elevated transition-colors;
-}
+.btn-secondary {
+  border-color: var(--color-muted);
+  color: var(--color-secondary);
 
-/* Botón CTA de página (header de sección, no flex-1) */
-.btn-cta {
-  @apply px-4 py-2 text-sm font-medium rounded-lg bg-brand-strong hover:bg-brand
-    text-base transition-colors;
-}
-
-/* Botón de acción destructiva (confirmar borrado, flex-1) */
-.btn-danger {
-  @apply flex-1 px-4 py-2 text-sm font-medium rounded-lg bg-danger-strong
-    hover:bg-danger text-white transition-colors;
-}
-
-/* Botón icono pequeño (editar) */
-.btn-icon {
-  @apply p-1.5 text-tertiary hover:text-primary hover:bg-elevated rounded-md transition-colors;
-}
-
-/* Botón icono pequeño destructivo (eliminar) */
-.btn-icon-danger {
-  @apply p-1.5 text-tertiary hover:text-danger hover:bg-loss-bg rounded-md transition-colors;
-}
-
-/* Botón de texto en tabla (editar) */
-.btn-table-action {
-  @apply text-xs text-secondary hover:text-primary bg-elevated hover:bg-overlay
-    border border-muted rounded-md px-2.5 py-1 transition-colors;
-}
-
-/* Botón de texto en tabla (eliminar) */
-.btn-table-danger {
-  @apply text-xs text-danger hover:opacity-80 bg-loss-bg border border-loss/20
-    rounded-md px-2.5 py-1 transition-opacity;
+  &:hover {
+    color: var(--color-primary);
+    background-color: var(--color-elevated);
+  }
 }
 
 .btn-act {
-  /* @apply text-xs text-primary bg-brand-subtle hover:bg-brand-hover rounded-md px-2.5 py-1 transition-colors; */
-  color: red;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: var(--color-secondary);
+  background-color: var(--color-elevated);
+  border: 1px solid var(--color-muted);
+  border-radius: 0.375rem;
+  padding: 0.3rem;
+  transition-property: color, background-color, border-color;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+  cursor: pointer;
+
+  & svg {
+    width: 1.2rem;
+    height: 1.2rem;
+    display: block;
+    color: var(--color-secondary);
+  }
+
+  &:hover {
+    color: var(--color-primary);
+    background-color: var(--color-overlay);
+  }
+
+  /* edit */
+  &.edit {
+    & svg {
+      color: var(--color-slate-400);
+    }
+
+    &:hover {
+      border-color: var(--color-slate-500);
+      & svg {
+        color: var(--color-slate-300);
+      }
+    }
+  }
+
+  /* delete */
+  &.delete {
+    &:hover {
+      border-color: var(--color-red-400);
+      & svg {
+        color: var(--color-red-400);
+      }
+    }
+  }
 }

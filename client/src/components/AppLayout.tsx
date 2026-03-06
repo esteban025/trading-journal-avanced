@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router';
 import { Sidebar } from './Sidebar';
 import { useAppContext } from '../context/AppContext';
+import { CheckIcon, ExclamationCircleIcon, XMarkIcon } from '../assets/icons/icons-react';
 
 function ToastContainer() {
   const { state, dispatch } = useAppContext();
@@ -18,22 +19,16 @@ function ToastContainer() {
           ].join(' ')}
         >
           {toast.variant === 'success' ? (
-            <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-            </svg>
+            <CheckIcon className="w-4 h-4 shrink-0" />
           ) : (
-            <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
-            </svg>
+            <ExclamationCircleIcon className="w-4 h-4 shrink-0" />
           )}
           <span>{toast.message}</span>
           <button
             onClick={() => dispatch({ type: 'REMOVE_TOAST', payload: toast.id })}
             className="ml-2 opacity-60 hover:opacity-100 transition-opacity"
           >
-            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-            </svg>
+            <XMarkIcon className="w-3.5 h-3.5" strokeWidth={2.5} />
           </button>
         </div>
       ))}

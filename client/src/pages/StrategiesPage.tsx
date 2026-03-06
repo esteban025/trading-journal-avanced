@@ -4,6 +4,7 @@ import { strategiesService } from '../services/strategiesService';
 import { StrategyForm } from '../components/StrategyForm';
 import { useToast } from '../context/AppContext';
 import { usePageAnimation } from '../hooks/usePageAnimation';
+import { BeakerIcon } from '../assets/icons/icons-react';
 
 // ── ConfirmDialog ────────────────────────────────────────────────────────────
 
@@ -59,19 +60,7 @@ function EmptyState({ onNew }: { onNew: () => void }) {
   return (
     <div className="flex flex-col items-center justify-center py-20 text-center">
       <div className="w-14 h-14 rounded-full bg-elevated flex items-center justify-center mb-4">
-        <svg
-          className="w-7 h-7 text-tertiary"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={1.5}
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23-.693L5 14.5m14.8.8l1.402 1.402c1 1 .03 2.798-1.364 2.798H4.16c-1.393 0-2.364-1.798-1.364-2.798L4.2 15.3"
-          />
-        </svg>
+        <BeakerIcon className="w-7 h-7 text-tertiary" />
       </div>
       <p className="text-primary font-medium mb-1">Sin estrategias registradas</p>
       <p className="text-secondary text-sm mb-5">

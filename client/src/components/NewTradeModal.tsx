@@ -5,6 +5,7 @@ import { assetsService } from '../services/assetsService';
 import { strategiesService } from '../services/strategiesService';
 import { tradesService } from '../services/tradesService';
 import { useAppContext } from '../context/AppContext';
+import { XMarkIcon } from '../assets/icons/icons-react';
 
 interface NewTradeModalProps {
   onClose: () => void;
@@ -219,9 +220,7 @@ export function NewTradeModal({ onClose, onCreated, onUpdated, trade }: NewTrade
         <div className="flex items-center justify-between px-6 py-4 border-b border-subtle sticky top-0 bg-surface z-10">
           <h2 className="text-primary font-semibold text-lg">{isEdit ? 'Editar trade' : 'Nuevo trade'}</h2>
           <button onClick={onClose} className="text-tertiary hover:text-primary transition-colors">
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <XMarkIcon className="w-5 h-5" />
           </button>
         </div>
 

@@ -1,0 +1,35 @@
+select {
+  @apply w-full bg-elevated border border-muted text-primary text-sm rounded-md px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-brand;
+
+  & option {
+    @apply bg-elevated/50 text-primary p-2 rounded-md cursor-pointer;
+
+    &:hover {
+      @apply bg-elevated;
+    }
+
+    
+    &:checked {
+      @apply bg-brand text-base;
+
+      &:hover {
+        @apply bg-brand-hover;
+      }
+    }
+  }
+}
+
+select, ::picker(select) {
+  appearance: base-select;
+}
+
+::picker(select) {
+  margin: .5rem 0;
+  padding: 0.4rem;
+  border: 1px solid var(--color-subtle);
+  border-radius: 0.4rem;
+  font-size: 0.875rem; 
+  font-weight: 500;
+  color: var(--color-primary);
+  background-color: var(--color-base);
+}
